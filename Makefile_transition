@@ -1,0 +1,15 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g
+TARGET = transition_lexer
+SOURCE = transition_diagram_lexer.c
+
+$(TARGET): $(SOURCE)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCE)
+
+clean:
+	rm -f $(TARGET)
+
+test: $(TARGET)
+	./$(TARGET) v1/test_input.c
+
+.PHONY: clean test
