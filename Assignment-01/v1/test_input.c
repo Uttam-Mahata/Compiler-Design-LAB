@@ -1,6 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
 int main() {
     int x = 10;
-    float y = 20;
+    float y = 20.5;
     char ch;
     
     if (x > y) {
@@ -28,6 +30,7 @@ int main() {
     
     x++;
     y--;
+    printf("Final values: x = %d, y = %.2f\n", x, y);
     
     return 0;
 }
