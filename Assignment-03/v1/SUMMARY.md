@@ -1,248 +1,267 @@
-# C Language Subset Parser - Summary
+I'll analyze the YACC grammar file to identify all the production rules used in this C language subset parser. 
 
-## Project Overview
-This project successfully implements a comprehensive YACC specification for parsing a subset of the C programming language. The parser handles all the required language constructs with proper syntax error detection and reporting.
+Searched text for `^[a-zA-Z_][a-zA-Z0-9_]*\s*:` (`**/parse.y`), 20 results
 
-## Successfully Implemented Features
+Let me get more comprehensive results to see all production rules: 
 
-### ✅ Main Function Support
-- Main function with and without parameters
-- Proper return statements
-- Example: `int main() { return 0; }`
+Searched text for `^[a-zA-Z_][a-zA-Z0-9_]*\s*:` (`**/parse.y`), 50 results
 
-### ✅ Statement Types
+Now let me read the grammar rules section more carefully to extract all the production rules: 
 
-#### Local/Global Declarations
-- Variable declarations at multiple scopes
-- Multiple data types (int, float, char)
-- Array declarations
-- Initialization during declaration
-- Example: `int x, y; float arr[10]; char c = 'a';`
+Read [](file:///home/uttam/Compiler-Design-LAB/Assignment-03/v1/parse.y#60-60), lines 60 to 360
 
-#### Assignment Statements
-- Basic assignment: `x = 5;`
-- Compound assignments: `x += 5;`, `x -= 2;`, etc.
-- Array assignments: `arr[0] = 10;`
-- Pre/post increment/decrement: `++x;`, `x--;`
+# Production Rules Used in the C Language Subset Parser
 
-#### Conditional Statements
-- If statements: `if(x > 0) { ... }`
-- If-else statements: `if(x > 0) { ... } else { ... }`
-- Nested conditionals supported
+Based on my analysis of the YACC grammar specification in parse.y, here are all the production rules organized by category:
 
-#### Iterative Statements
-- While loops: `while(x > 0) { x--; }`
-- For loops: `for(i = 0; i < 10; i++) { ... }`
-- Do-while loops: `do { ... } while(x > 0);`
-- Complex loop conditions and updates
+## **1. Program Structure**
 
-#### Function Calls
-- Simple function calls: `func();`
-- Function calls with arguments: `func(a, b, c);`
-- Function calls in expressions: `x = func(y) + 1;`
-
-### ✅ User-Defined Functions
-- Function declarations: `int add(int a, int b);`
-- Function definitions with parameters
-- Function definitions without parameters
-- Return statements with and without values
-
-### ✅ Expression Support
-- Comprehensive operator precedence
-- All arithmetic operators: `+`, `-`, `*`, `/`, `%`
-- All relational operators: `<`, `>`, `<=`, `>=`, `==`, `!=`
-- Logical operators: `&&`, `||`, `!`
-- Bitwise operators: `&`, `|`, `^`, `~`, `<<`, `>>`
-- Ternary operator: `condition ? value1 : value2`
-- Parenthesized expressions
-- Complex expression evaluation
-
-### ✅ Data Types
-- Integer: `int`
-- Floating point: `float`
-- Character: `char`
-- Array support for all types
-
-### ✅ Error Detection
-- Syntax error detection with line numbers
-- Comprehensive error messages
-- Error recovery mechanisms
-- Detailed error reporting
-
-### ✅ Additional Features
-- C-style comments support (`//` and `/* */`)
-- Proper scope handling
-- Whitespace and newline handling
-- String and character literal support
-
-## Test Results
-
-### Test Case 1: Simple Main Function ✅
-```c
-int main() {
-    int x, y;
-    float z;
-    x = 10;
-    y = 20;
-    z = 3.14;
-    return 0;
-}
-```
-**Result**: All syntax elements correctly parsed
-
-### Test Case 2: Control Structures ✅
-```c
-int main() {
-    int i, n, sum;
-    for(i = 1; i <= n; i++) {
-        sum = sum + i;
-    }
-    if(sum > 50) {
-        sum = sum * 2;
-    } else {
-        sum = sum + 1;
-    }
-    while(sum > 0) {
-        sum = sum - 1;
-    }
-    return sum;
-}
-```
-**Result**: All control structures properly recognized
-
-### Test Case 3: User-Defined Functions ✅
-```c
-int add(int a, int b);
-int add(int a, int b) {
-    return a + b;
-}
-int main() {
-    int result = add(5, 3);
-    return 0;
-}
-```
-**Result**: Function declarations and definitions correctly parsed
-
-### Test Case 4: Complex Expressions ✅
-```c
-int main() {
-    int a = 10, b = 5;
-    result = (a > b) ? a : b;
-    result = a & b | c ^ d;
-    a += 5; b *= 2;
-    return result;
-}
-```
-**Result**: All operators and expressions handled correctly
-
-### Test Case 5: Error Detection ✅
-```c
-int main() {
-    int x y;      // Missing comma
-    x = 5         // Missing semicolon
-    return 0;
-}
-```
-**Result**: Syntax errors properly detected and reported
-
-## Technical Implementation Details
-
-### Grammar Design
-- **Productions**: 50+ grammar rules covering all C language constructs
-- **Tokens**: 35+ token types for operators, keywords, and literals
-- **Precedence**: Proper operator precedence and associativity rules
-- **Error Recovery**: Panic mode recovery for syntax errors
-
-### Architecture
-```
-Input Source Code
-       ↓
-  Lexical Analyzer (Flex)
-       ↓
-    Token Stream
-       ↓
- Syntax Analyzer (YACC)
-       ↓
-   Parse Tree / Syntax Validation
-       ↓
-    Success/Error Report
+```bnf
+program → global_declarations main_function user_functions
+        | main_function user_functions  
+        | main_function
 ```
 
-### File Structure
-- `lex.l`: Lexical analyzer specification
-- `parse.y`: YACC parser specification
-- `Makefile`: Build configuration
-- Test files and documentation
+## **2. Global Declarations**
 
-## Assignment Requirements Fulfillment
+```bnf
+global_declarations → global_declarations global_declaration
+                    | global_declaration
 
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| Main function | ✅ Complete | Full support with/without parameters |
-| Local/Global declarations | ✅ Complete | Multiple scopes, all data types |
-| Assignment statements | ✅ Complete | All assignment operators |
-| Conditional statements | ✅ Complete | if, if-else, nested conditions |
-| Iterative statements | ✅ Complete | while, for, do-while loops |
-| Function calls | ✅ Complete | With/without arguments |
-| User-defined functions | ✅ Complete | Declarations and definitions |
-| Variable declaration rules | ✅ Complete | Scope-aware parsing |
-| Syntax error detection | ✅ Complete | Line numbers and detailed messages |
-
-## Build and Usage
-
-### Building the Parser
-```bash
-make clean
-make
+global_declaration → data_type declarator_list SEMICOLON_TOK
+                   | function_declaration
 ```
 
-### Running Tests
-```bash
-# Test with file input
-./parser < test_simple.c
+## **3. Main Function**
 
-# Interactive mode
-./parser
-# Type code and press Ctrl+D
-
-# Run all tests
-./test_all.sh
+```bnf
+main_function → data_type ID_TOK LPAREN_TOK RPAREN_TOK compound_statement
+              | data_type ID_TOK LPAREN_TOK parameter_list RPAREN_TOK compound_statement
 ```
 
-### Sample Output
-```
-=== C LANGUAGE SUBSET PARSER ===
-Parsing input...
+## **4. User-Defined Functions**
 
-SYNTAX OK (Line 2): Local variable declaration
-SYNTAX OK (Line 3): Assignment statement
-SYNTAX OK (Line 4): Return statement with value
-SYNTAX OK (Line 5): Compound statement
-SYNTAX OK (Line 5): Main function definition
-SYNTAX OK (Line 5): Simple C program with main function only
+```bnf
+user_functions → user_functions user_function
+               | user_function
+               | ε (empty)
 
-=== PARSING COMPLETED SUCCESSFULLY ===
-Total syntax errors: 0
+user_function → function_declaration
+              | function_definition
 
-=== PARSING SUCCESSFUL ===
-No syntax errors found!
+function_declaration → data_type ID_TOK LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
+                     | data_type ID_TOK LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
+
+function_definition → data_type ID_TOK LPAREN_TOK RPAREN_TOK compound_statement
+                    | data_type ID_TOK LPAREN_TOK parameter_list RPAREN_TOK compound_statement
 ```
 
-## Conclusion
+## **5. Parameters**
 
-The YACC specification successfully implements a comprehensive parser for a significant subset of the C programming language. All assignment requirements have been fulfilled:
+```bnf
+parameter_list → parameter_list COMMA_TOK parameter
+               | parameter
 
-1. **Complete language construct support**: Main functions, statements, declarations, control structures, and user-defined functions
-2. **Robust error detection**: Syntax errors reported with precise line numbers
-3. **Proper scope handling**: Variables must be declared before use
-4. **Comprehensive expression parsing**: All C operators with correct precedence
-5. **Extensible design**: Easy to add new language features
+parameter → data_type ID_TOK
+          | data_type ID_TOK LBRACKET_TOK RBRACKET_TOK
+```
 
-The parser demonstrates professional-level compiler construction techniques and serves as a solid foundation for further compiler development phases (semantic analysis, code generation, etc.).
+## **6. Data Types**
 
-## Future Enhancements
-- Symbol table implementation for semantic analysis
-- Type checking and compatibility verification
-- More advanced C features (pointers, structs, etc.)
-- Code generation backend
-- Optimization passes
+```bnf
+data_type → INT_TOK
+          | FLOAT_TOK
+          | CHAR_TOK
+```
+
+## **7. Declarations**
+
+```bnf
+declarator_list → declarator_list COMMA_TOK declarator
+                | declarator
+
+declarator → ID_TOK
+           | ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
+           | ID_TOK ASSIGN_TOK expression
+
+local_declarations → local_declarations local_declaration
+                   | ε (empty)
+
+local_declaration → data_type declarator_list SEMICOLON_TOK
+```
+
+## **8. Compound Statements**
+
+```bnf
+compound_statement → LBRACE_TOK local_declarations statement_list RBRACE_TOK
+
+statement_list → statement_list statement
+               | ε (empty)
+```
+
+## **9. Statements**
+
+```bnf
+statement → expression_statement
+          | compound_statement
+          | conditional_statement
+          | iterative_statement
+          | return_statement
+          | assignment_statement
+
+expression_statement → expression SEMICOLON_TOK
+                     | SEMICOLON_TOK
+```
+
+## **10. Assignment Statements**
+
+```bnf
+assignment_statement → ID_TOK ASSIGN_TOK expression SEMICOLON_TOK
+                     | ID_TOK ADD_ASSIGN_TOK expression SEMICOLON_TOK
+                     | ID_TOK SUB_ASSIGN_TOK expression SEMICOLON_TOK
+                     | ID_TOK MUL_ASSIGN_TOK expression SEMICOLON_TOK
+                     | ID_TOK DIV_ASSIGN_TOK expression SEMICOLON_TOK
+                     | ID_TOK MOD_ASSIGN_TOK expression SEMICOLON_TOK
+                     | ID_TOK LBRACKET_TOK expression RBRACKET_TOK ASSIGN_TOK expression SEMICOLON_TOK
+```
+
+## **11. Conditional Statements**
+
+```bnf
+conditional_statement → IF_TOK LPAREN_TOK expression RPAREN_TOK statement
+                      | IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement
+```
+
+## **12. Iterative Statements**
+
+```bnf
+iterative_statement → WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement
+                    | FOR_TOK LPAREN_TOK for_init SEMICOLON_TOK for_condition SEMICOLON_TOK for_update RPAREN_TOK statement
+                    | DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
+
+for_init → assignment_expression
+         | declaration_expression
+         | ε (empty)
+
+for_condition → expression
+              | ε (empty)
+
+for_update → assignment_expression
+           | ε (empty)
+
+declaration_expression → data_type ID_TOK ASSIGN_TOK expression
+                       | data_type ID_TOK
+
+assignment_expression → ID_TOK ASSIGN_TOK expression
+                      | ID_TOK ADD_ASSIGN_TOK expression
+                      | ID_TOK SUB_ASSIGN_TOK expression
+                      | ID_TOK MUL_ASSIGN_TOK expression
+                      | ID_TOK DIV_ASSIGN_TOK expression
+                      | ID_TOK MOD_ASSIGN_TOK expression
+                      | ID_TOK INC_TOK
+                      | ID_TOK DEC_TOK
+                      | INC_TOK ID_TOK
+                      | DEC_TOK ID_TOK
+```
+
+## **13. Return Statements**
+
+```bnf
+return_statement → RETURN_TOK SEMICOLON_TOK
+                 | RETURN_TOK expression SEMICOLON_TOK
+```
+
+## **14. Expression Hierarchy (Precedence Order)**
+
+```bnf
+expression → assignment_expr
+
+assignment_expr → conditional_expr
+                | ID_TOK ASSIGN_TOK assignment_expr
+                | ID_TOK ADD_ASSIGN_TOK assignment_expr
+                | ID_TOK SUB_ASSIGN_TOK assignment_expr
+                | ID_TOK MUL_ASSIGN_TOK assignment_expr
+                | ID_TOK DIV_ASSIGN_TOK assignment_expr
+                | ID_TOK MOD_ASSIGN_TOK assignment_expr
+
+conditional_expr → logical_or_expr
+                 | logical_or_expr TERNARY_TOK expression COLON_TOK conditional_expr
+
+logical_or_expr → logical_and_expr
+                | logical_or_expr OR_TOK logical_and_expr
+
+logical_and_expr → bitwise_or_expr
+                 | logical_and_expr AND_TOK bitwise_or_expr
+
+bitwise_or_expr → bitwise_xor_expr
+                | bitwise_or_expr BIT_OR_TOK bitwise_xor_expr
+
+bitwise_xor_expr → bitwise_and_expr
+                 | bitwise_xor_expr BIT_XOR_TOK bitwise_and_expr
+
+bitwise_and_expr → equality_expr
+                 | bitwise_and_expr BIT_AND_TOK equality_expr
+
+equality_expr → relational_expr
+              | equality_expr EQ_TOK relational_expr
+              | equality_expr NEQ_TOK relational_expr
+
+relational_expr → shift_expr
+                | relational_expr LT_TOK shift_expr
+                | relational_expr GT_TOK shift_expr
+                | relational_expr LE_TOK shift_expr
+                | relational_expr GE_TOK shift_expr
+
+shift_expr → additive_expr
+           | shift_expr BIT_LSHIFT_TOK additive_expr
+           | shift_expr BIT_RSHIFT_TOK additive_expr
+
+additive_expr → multiplicative_expr
+              | additive_expr ADD_TOK multiplicative_expr
+              | additive_expr SUB_TOK multiplicative_expr
+
+multiplicative_expr → unary_expr
+                    | multiplicative_expr MUL_TOK unary_expr
+                    | multiplicative_expr DIV_TOK unary_expr
+                    | multiplicative_expr MOD_TOK unary_expr
+
+unary_expr → postfix_expr
+           | INC_TOK unary_expr
+           | DEC_TOK unary_expr
+           | unary_operator unary_expr
+
+unary_operator → ADD_TOK
+               | SUB_TOK
+               | NOT_TOK
+               | BIT_NOT_TOK
+
+postfix_expr → primary_expr
+             | postfix_expr LBRACKET_TOK expression RBRACKET_TOK
+             | postfix_expr LPAREN_TOK RPAREN_TOK
+             | postfix_expr LPAREN_TOK argument_list RPAREN_TOK
+             | postfix_expr INC_TOK
+             | postfix_expr DEC_TOK
+
+argument_list → argument_list COMMA_TOK expression
+              | expression
+
+primary_expr → ID_TOK
+             | INTCONST_TOK
+             | FLOATCONST_TOK
+             | STRING_TOK
+             | LPAREN_TOK expression RPAREN_TOK
+```
+
+## **Summary**
+
+This grammar defines **45 unique non-terminal symbols** with approximately **95 production rules** (counting all alternatives). The grammar follows a **hierarchical structure** that properly handles:
+
+1. **Operator precedence** through expression hierarchy
+2. **Left and right associativity** for operators
+3. **Recursive structures** for lists (parameters, statements, etc.)
+4. **Optional elements** using empty productions (ε)
+5. **Scope management** for compound statements
+6. **Function definitions and calls** with parameter passing
+7. **All major C control structures** (if/else, loops, functions)
+
+The production rules implement a **well-structured context-free grammar** that can parse a significant subset of the C programming language while maintaining proper syntax validation and error reporting.
