@@ -18,7 +18,7 @@ int x = 12345678901234567890;
     for (int i = 0; i < 10; i++) {
         x *= 2;
     }
-    $ @ # illegal characters here
+    $ @#var=5;
     while (x >= 100) {
         x /= 2;
         y %= 3;
