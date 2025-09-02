@@ -40,6 +40,9 @@ void print_syntax_success(char* construct) {
 %token ERROR_TOK ID_TOO_LONG_ERROR NUM_TOO_LONG_ERROR ILLEGAL_CHAR_ERROR
 %token UNMATCHED_STRING_ERROR SPELLING_ERROR INVALID_NUM_ERROR
 
+/* YACC error token for syntax error recovery */
+%token error
+
 /* Operator precedence and associativity */
 %right ASSIGN_TOK ADD_ASSIGN_TOK SUB_ASSIGN_TOK MUL_ASSIGN_TOK DIV_ASSIGN_TOK MOD_ASSIGN_TOK
 %right TERNARY_TOK COLON_TOK
@@ -90,6 +93,24 @@ global_declaration: data_type declarator_list SEMICOLON_TOK
                    { print_syntax_success("Global variable declaration"); }
                   | function_declaration
                    { print_syntax_success("Function declaration"); }
+                  | data_type declarator_list error
+                   {
+                     printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after variable declaration\n", line_number);
+                     error_count++;
+                     yyerrok;
+                   }
+                  | data_type error SEMICOLON_TOK
+                   {
+                     printf("SYNTAX ERROR (Line %d): Invalid variable declarator list\n", line_number);
+                     error_count++;
+                     yyerrok;
+                   }
+                  | error declarator_list SEMICOLON_TOK
+                   {
+                     printf("SYNTAX ERROR (Line %d): Invalid or missing data type in declaration\n", line_number);
+                     error_count++;
+                     yyerrok;
+                   }
                   ;
 
 /* Main function */
@@ -119,6 +140,24 @@ function_declaration: data_type ID_TOK LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
                      { print_syntax_success("Function declaration"); }
                     | data_type ID_TOK LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
                      { print_syntax_success("Function declaration with parameters"); }
+                    | data_type ID_TOK LPAREN_TOK RPAREN_TOK error
+                     {
+                       printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after function declaration\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
+                    | data_type ID_TOK LPAREN_TOK parameter_list error SEMICOLON_TOK
+                     {
+                       printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in function declaration\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
+                    | data_type ID_TOK error RPAREN_TOK SEMICOLON_TOK
+                     {
+                       printf("SYNTAX ERROR (Line %d): Missing opening parenthesis '(' in function declaration\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
                     ;
 
 function_definition: data_type ID_TOK LPAREN_TOK RPAREN_TOK compound_statement
@@ -130,6 +169,18 @@ function_definition: data_type ID_TOK LPAREN_TOK RPAREN_TOK compound_statement
 /* Parameter list */
 parameter_list: parameter_list COMMA_TOK parameter
               | parameter
+              | parameter_list error parameter
+               {
+                 printf("SYNTAX ERROR (Line %d): Missing comma ',' between parameters\n", line_number);
+                 error_count++;
+                 yyerrok;
+               }
+              | parameter_list COMMA_TOK error
+               {
+                 printf("SYNTAX ERROR (Line %d): Invalid parameter after comma\n", line_number);
+                 error_count++;
+                 yyerrok;
+               }
               ;
 
 parameter: data_type ID_TOK
@@ -145,6 +196,18 @@ data_type: INT_TOK
 /* Declaration statements */
 declarator_list: declarator_list COMMA_TOK declarator
                | declarator
+               | declarator_list error declarator
+                {
+                  printf("SYNTAX ERROR (Line %d): Missing comma ',' between declarators\n", line_number);
+                  error_count++;
+                  yyerrok;
+                }
+               | declarator_list COMMA_TOK error
+                {
+                  printf("SYNTAX ERROR (Line %d): Invalid declarator after comma\n", line_number);
+                  error_count++;
+                  yyerrok;
+                }
                ;
 
 declarator: ID_TOK
@@ -159,6 +222,22 @@ compound_statement: LBRACE_TOK
                     { scope_level--; }
                     RBRACE_TOK
                     { print_syntax_success("Compound statement"); }
+                  | LBRACE_TOK 
+                    { scope_level++; }
+                    local_declarations statement_list 
+                    { scope_level--; }
+                    error
+                    { 
+                      printf("SYNTAX ERROR (Line %d): Missing closing brace '}'\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
+                  | LBRACE_TOK error RBRACE_TOK
+                    {
+                      printf("SYNTAX ERROR (Line %d): Invalid content inside braces\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
                   ;
 
 /* Local declarations */
@@ -168,6 +247,24 @@ local_declarations: local_declarations local_declaration
 
 local_declaration: data_type declarator_list SEMICOLON_TOK
                   { print_syntax_success("Local variable declaration"); }
+                 | data_type declarator_list error
+                  {
+                    printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after local declaration\n", line_number);
+                    error_count++;
+                    yyerrok;
+                  }
+                 | data_type error SEMICOLON_TOK
+                  {
+                    printf("SYNTAX ERROR (Line %d): Invalid local variable declarator\n", line_number);
+                    error_count++;
+                    yyerrok;
+                  }
+                 | error declarator_list SEMICOLON_TOK
+                  {
+                    printf("SYNTAX ERROR (Line %d): Invalid data type in local declaration\n", line_number);
+                    error_count++;
+                    yyerrok;
+                  }
                  ;
 
 /* Statement list */
@@ -187,6 +284,12 @@ statement: expression_statement
 expression_statement: expression SEMICOLON_TOK
                      { print_syntax_success("Expression statement"); }
                     | SEMICOLON_TOK
+                    | expression error
+                     {
+                       printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after expression\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
                     ;
 
 /* Assignment statements */
@@ -204,6 +307,24 @@ assignment_statement: ID_TOK ASSIGN_TOK expression SEMICOLON_TOK
                      { print_syntax_success("Mod-assignment statement"); }
                     | ID_TOK LBRACKET_TOK expression RBRACKET_TOK ASSIGN_TOK expression SEMICOLON_TOK
                      { print_syntax_success("Array assignment statement"); }
+                    | ID_TOK ASSIGN_TOK expression error
+                     {
+                       printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after assignment\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
+                    | ID_TOK ASSIGN_TOK error SEMICOLON_TOK
+                     {
+                       printf("SYNTAX ERROR (Line %d): Invalid expression in assignment\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
+                    | ID_TOK error expression SEMICOLON_TOK
+                     {
+                       printf("SYNTAX ERROR (Line %d): Invalid assignment operator\n", line_number);
+                       error_count++;
+                       yyerrok;
+                     }
                     ;
 
 /* Conditional statements */
@@ -211,6 +332,24 @@ conditional_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement
                       { print_syntax_success("If statement"); }
                      | IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement
                       { print_syntax_success("If-else statement"); }
+                     | IF_TOK LPAREN_TOK expression error statement
+                      {
+                        printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in if condition\n", line_number);
+                        error_count++;
+                        yyerrok;
+                      }
+                     | IF_TOK LPAREN_TOK error RPAREN_TOK statement
+                      {
+                        printf("SYNTAX ERROR (Line %d): Invalid expression in if condition\n", line_number);
+                        error_count++;
+                        yyerrok;
+                      }
+                     | IF_TOK error expression RPAREN_TOK statement
+                      {
+                        printf("SYNTAX ERROR (Line %d): Missing opening parenthesis '(' in if statement\n", line_number);
+                        error_count++;
+                        yyerrok;
+                      }
                      ;
 
 /* Iterative statements */
@@ -220,6 +359,42 @@ iterative_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement
                     { print_syntax_success("For loop"); }
                    | DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
                     { print_syntax_success("Do-while loop"); }
+                   | WHILE_TOK LPAREN_TOK expression error statement
+                    {
+                      printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in while condition\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
+                   | WHILE_TOK error expression RPAREN_TOK statement
+                    {
+                      printf("SYNTAX ERROR (Line %d): Missing opening parenthesis '(' in while loop\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
+                   | FOR_TOK LPAREN_TOK for_init SEMICOLON_TOK for_condition SEMICOLON_TOK for_update error statement
+                    {
+                      printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in for loop\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
+                   | FOR_TOK LPAREN_TOK for_init error for_condition SEMICOLON_TOK for_update RPAREN_TOK statement
+                    {
+                      printf("SYNTAX ERROR (Line %d): Missing semicolon ';' in for loop initialization\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
+                   | FOR_TOK LPAREN_TOK for_init SEMICOLON_TOK for_condition error for_update RPAREN_TOK statement
+                    {
+                      printf("SYNTAX ERROR (Line %d): Missing semicolon ';' in for loop condition\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
+                   | DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK error
+                    {
+                      printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after do-while loop\n", line_number);
+                      error_count++;
+                      yyerrok;
+                    }
                    ;
 
 for_init: assignment_expression
@@ -257,6 +432,18 @@ return_statement: RETURN_TOK SEMICOLON_TOK
                  { print_syntax_success("Return statement"); }
                 | RETURN_TOK expression SEMICOLON_TOK
                  { print_syntax_success("Return statement with value"); }
+                | RETURN_TOK expression error
+                 {
+                   printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after return statement\n", line_number);
+                   error_count++;
+                   yyerrok;
+                 }
+                | RETURN_TOK error
+                 {
+                   printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after return\n", line_number);
+                   error_count++;
+                   yyerrok;
+                 }
                 ;
 
 /* Expressions */
@@ -338,16 +525,52 @@ unary_operator: ADD_TOK %prec UNARY_PLUS
 
 postfix_expr: primary_expr
             | postfix_expr LBRACKET_TOK expression RBRACKET_TOK
+            | postfix_expr LBRACKET_TOK expression error
+              {
+                printf("SYNTAX ERROR (Line %d): Missing closing bracket ']'\n", line_number);
+                error_count++;
+                yyerrok;
+              }
+            | postfix_expr LBRACKET_TOK error RBRACKET_TOK
+              {
+                printf("SYNTAX ERROR (Line %d): Invalid array index expression\n", line_number);
+                error_count++;
+                yyerrok;
+              }
             | postfix_expr LPAREN_TOK RPAREN_TOK
               { print_syntax_success("Function call"); }
             | postfix_expr LPAREN_TOK argument_list RPAREN_TOK
               { print_syntax_success("Function call with arguments"); }
+            | postfix_expr LPAREN_TOK argument_list error
+              {
+                printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in function call\n", line_number);
+                error_count++;
+                yyerrok;
+              }
+            | postfix_expr LPAREN_TOK error RPAREN_TOK
+              {
+                printf("SYNTAX ERROR (Line %d): Invalid function arguments\n", line_number);
+                error_count++;
+                yyerrok;
+              }
             | postfix_expr INC_TOK
             | postfix_expr DEC_TOK
             ;
 
 argument_list: argument_list COMMA_TOK expression
              | expression
+             | argument_list error expression
+              {
+                printf("SYNTAX ERROR (Line %d): Missing comma ',' between function arguments\n", line_number);
+                error_count++;
+                yyerrok;
+              }
+             | argument_list COMMA_TOK error
+              {
+                printf("SYNTAX ERROR (Line %d): Invalid expression after comma in argument list\n", line_number);
+                error_count++;
+                yyerrok;
+              }
              ;
 
 primary_expr: ID_TOK
@@ -355,6 +578,18 @@ primary_expr: ID_TOK
             | FLOATCONST_TOK
             | STRING_TOK
             | LPAREN_TOK expression RPAREN_TOK
+            | LPAREN_TOK expression error
+              {
+                printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')'\n", line_number);
+                error_count++;
+                yyerrok;
+              }
+            | LPAREN_TOK error RPAREN_TOK
+              {
+                printf("SYNTAX ERROR (Line %d): Invalid expression inside parentheses\n", line_number);
+                error_count++;
+                yyerrok;
+              }
             ;
 
 %%
