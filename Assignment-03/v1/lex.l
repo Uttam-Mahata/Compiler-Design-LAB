@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include "tok_def.h"
+#include "y.tab.h"
 
 #define MAX_ID_LENGTH 31
 #define MAX_NUM_LENGTH 10
@@ -53,6 +53,8 @@ newline \n
 
 
 %%
+"//".*                              {/* Single-line comment - ignore */}
+"/*"([^*]|\*+[^*/])*\*+"/"          {/* Multi-line comment - ignore */}
 "<<"                                {return(BIT_LSHIFT_TOK);}
 ">>"                                {return(BIT_RSHIFT_TOK);}
 "+="                                {return(ADD_ASSIGN_TOK);}
@@ -185,29 +187,3 @@ newline \n
                                     }
 
 %%
-
-int main() {
-    int val;
-    printf("=== LEXICAL ANALYSIS WITH ERROR DETECTION ===\n");
-    printf("Processing input...\n\n");
-    
-    while((val = yylex()) > 0)
-    {
-        if (val >= 400) {
-            // Error token - already printed error message
-            continue;
-        }
-        printf("Token: %-20s | Token ID: %d\n", yytext, val);
-    }
-    
-    printf("\n=== LEXICAL ANALYSIS COMPLETE ===\n");
-    printf("Total lexical errors found: %d\n", error_count);
-    
-    if (error_count == 0) {
-        printf(" No lexical errors detected!\n");
-    } else {
-        printf(" %d lexical error(s) need to be fixed.\n", error_count);
-    }
-    
-    return(0);
-}
