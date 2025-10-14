@@ -10,6 +10,11 @@ void init_symbol_table() {
 }
 
 int add_symbol(char* name, data_type_t type, scope_type_t scope, int line_no, int is_function) {
+    return add_symbol_with_attrs(name, type, scope, line_no, is_function, 0, 0, 0);
+}
+
+int add_symbol_with_attrs(char* name, data_type_t type, scope_type_t scope, int line_no, 
+                          int is_function, int is_array, int array_size, int is_pointer) {
     if (sym_table.count >= MAX_SYMBOLS) {
         printf("ERROR: Symbol table overflow\n");
         return 0;
@@ -30,10 +35,15 @@ int add_symbol(char* name, data_type_t type, scope_type_t scope, int line_no, in
     sym_table.symbols[sym_table.count].scope_level = sym_table.current_scope_level;
     sym_table.symbols[sym_table.count].line_declared = line_no;
     sym_table.symbols[sym_table.count].is_function = is_function;
+    sym_table.symbols[sym_table.count].is_array = is_array;
+    sym_table.symbols[sym_table.count].array_size = array_size;
+    sym_table.symbols[sym_table.count].is_pointer = is_pointer;
     
-    printf("SYMBOL TABLE: Added '%s' - Type: %s, Scope: %s (Level %d), Line: %d\n", 
+    printf("SYMBOL TABLE: Added '%s' - Type: %s, Scope: %s (Level %d), Line: %d%s%s\n", 
            name, type_to_string(type), scope_to_string(scope), 
-           sym_table.current_scope_level, line_no);
+           sym_table.current_scope_level, line_no,
+           is_array ? " [Array]" : "",
+           is_pointer ? " [Pointer]" : "");
     
     sym_table.count++;
     return 1;
@@ -115,6 +125,12 @@ char* type_to_string(data_type_t type) {
         case TYPE_FLOAT: return "float";
         case TYPE_CHAR: return "char";
         case TYPE_VOID: return "void";
+        case TYPE_INT_PTR: return "int*";
+        case TYPE_FLOAT_PTR: return "float*";
+        case TYPE_CHAR_PTR: return "char*";
+        case TYPE_INT_ARRAY: return "int[]";
+        case TYPE_FLOAT_ARRAY: return "float[]";
+        case TYPE_CHAR_ARRAY: return "char[]";
         default: return "unknown";
     }
 }
@@ -131,4 +147,55 @@ char* scope_to_string(scope_type_t scope) {
 int is_variable_declared(char* name) {
     symbol_t* sym = lookup_symbol(name);
     return (sym != NULL);
+}
+
+// Check if two types are compatible for operations
+int are_types_compatible(data_type_t type1, data_type_t type2) {
+    if (type1 == type2) return 1;
+    
+    // Get base types for comparison
+    data_type_t base1 = get_base_type(type1);
+    data_type_t base2 = get_base_type(type2);
+    
+    // Numeric promotions: int and char are compatible
+    if ((base1 == TYPE_INT || base1 == TYPE_CHAR) && 
+        (base2 == TYPE_INT || base2 == TYPE_CHAR)) return 1;
+    
+    // Float is only compatible with float
+    if (base1 == TYPE_FLOAT && base2 == TYPE_FLOAT) return 1;
+    
+    return 0;
+}
+
+// Get base type from array/pointer type
+data_type_t get_base_type(data_type_t type) {
+    switch (type) {
+        case TYPE_INT_PTR:
+        case TYPE_INT_ARRAY:
+            return TYPE_INT;
+        case TYPE_FLOAT_PTR:
+        case TYPE_FLOAT_ARRAY:
+            return TYPE_FLOAT;
+        case TYPE_CHAR_PTR:
+        case TYPE_CHAR_ARRAY:
+            return TYPE_CHAR;
+        default:
+            return type;
+    }
+}
+
+// Check if type is an array type
+int is_array_type(data_type_t type) {
+    return (type == TYPE_INT_ARRAY || type == TYPE_FLOAT_ARRAY || type == TYPE_CHAR_ARRAY);
+}
+
+// Check if type is a pointer type
+int is_pointer_type(data_type_t type) {
+    return (type == TYPE_INT_PTR || type == TYPE_FLOAT_PTR || type == TYPE_CHAR_PTR);
+}
+
+// Check if type is a numeric type (for arithmetic operations)
+int is_numeric_type(data_type_t type) {
+    data_type_t base = get_base_type(type);
+    return (base == TYPE_INT || base == TYPE_FLOAT || base == TYPE_CHAR);
 }
