@@ -18,16 +18,6 @@ void print_syntax_success(char* construct) {
     printf("SYNTAX OK (Line %d): %s\n", line_number, construct);
 }
 
-data_type_t token_to_type(int token) {
-    switch(token) {
-        case INT_TOK: return TYPE_INT;
-        case FLOAT_TOK: return TYPE_FLOAT;
-        case CHAR_TOK: return TYPE_CHAR;
-        case VOID_TOK: return TYPE_VOID;
-        default: return TYPE_UNKNOWN;
-    }
-}
-
 scope_type_t get_current_scope_type() {
     if (sym_table.current_scope_level == 0) return SCOPE_GLOBAL;
     else if (sym_table.current_scope_level == 1) return SCOPE_FUNCTION;
@@ -122,7 +112,7 @@ global_declarations: global_declarations global_declaration
                    | global_declaration
                    ;
 
-global_declaration: data_type { current_type = token_to_type($1); } declarator_list SEMICOLON_TOK
+global_declaration: data_type { current_type = $1; } declarator_list SEMICOLON_TOK
                    { print_syntax_success("Global variable declaration"); }
                   | function_declaration
                    { print_syntax_success("Function declaration"); }
@@ -147,10 +137,10 @@ global_declaration: data_type { current_type = token_to_type($1); } declarator_l
                   ;
 
 /* Data types */
-data_type: INT_TOK { $$ = INT_TOK; }
-         | FLOAT_TOK { $$ = FLOAT_TOK; }
-         | CHAR_TOK { $$ = CHAR_TOK; }
-         | VOID_TOK { $$ = VOID_TOK; }
+data_type: INT_TOK { $$ = TYPE_INT; }
+         | FLOAT_TOK { $$ = TYPE_FLOAT; }
+         | CHAR_TOK { $$ = TYPE_CHAR; }
+         | VOID_TOK { $$ = TYPE_VOID; }
          ;
 
 /* Variable declarators */
@@ -213,7 +203,7 @@ declarator: ID_TOK
 /* Main function */
 main_function: data_type ID_TOK { 
                  // Add function to symbol table
-                 if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                 if (!add_symbol($2, $1, SCOPE_GLOBAL, line_number, 1)) {
                      error_count++;
                  }
                  enter_scope();
@@ -226,7 +216,7 @@ main_function: data_type ID_TOK {
                }
              | data_type ID_TOK { 
                  // Add function to symbol table
-                 if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                 if (!add_symbol($2, $1, SCOPE_GLOBAL, line_number, 1)) {
                      error_count++;
                  }
                  enter_scope();
@@ -251,7 +241,7 @@ user_function: function_declaration
 
 function_declaration: data_type ID_TOK {
                        // Add function declaration to symbol table
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                       if (!add_symbol($2, $1, SCOPE_GLOBAL, line_number, 1)) {
                            error_count++;
                        }
                        free($2);
@@ -259,7 +249,7 @@ function_declaration: data_type ID_TOK {
                      { print_syntax_success("Function declaration"); }
                     | data_type ID_TOK {
                        // Add function declaration to symbol table
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                       if (!add_symbol($2, $1, SCOPE_GLOBAL, line_number, 1)) {
                            error_count++;
                        }
                        free($2);
@@ -269,7 +259,7 @@ function_declaration: data_type ID_TOK {
 
 function_definition: data_type ID_TOK {
                       // Add function to symbol table
-                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                      if (!add_symbol($2, $1, SCOPE_GLOBAL, line_number, 1)) {
                           error_count++;
                       }
                       enter_scope();
@@ -281,7 +271,7 @@ function_definition: data_type ID_TOK {
                     }
                    | data_type ID_TOK {
                       // Add function to symbol table
-                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                      if (!add_symbol($2, $1, SCOPE_GLOBAL, line_number, 1)) {
                           error_count++;
                       }
                       enter_scope();
