@@ -15,7 +15,7 @@ all: $(TARGET)
 
 # Build the parser
 $(TARGET): y.tab.c lex.yy.c symbol_table.o
-	$(CC) $(CFLAGS) -o $(TARGET) y.tab.c symbol_table.o -ly -ll
+	$(CC) $(CFLAGS) -o $(TARGET) y.tab.c symbol_table.o -lfl
 
 # Generate parser from yacc
 y.tab.c y.tab.h: parse.y

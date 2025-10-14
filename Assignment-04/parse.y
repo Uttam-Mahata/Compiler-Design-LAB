@@ -18,20 +18,123 @@ void print_syntax_success(char* construct) {
     printf("SYNTAX OK (Line %d): %s\n", line_number, construct);
 }
 
-data_type_t token_to_type(int token) {
-    switch(token) {
-        case INT_TOK: return TYPE_INT;
-        case FLOAT_TOK: return TYPE_FLOAT;
-        case CHAR_TOK: return TYPE_CHAR;
-        case VOID_TOK: return TYPE_VOID;
-        default: return TYPE_UNKNOWN;
-    }
+void print_type_error(char* message) {
+    printf("TYPE ERROR (Line %d): %s\n", line_number, message);
+    error_count++;
 }
+
+// Forward declaration - will be defined after token definitions
+data_type_t token_to_type(int token);
 
 scope_type_t get_current_scope_type() {
     if (sym_table.current_scope_level == 0) return SCOPE_GLOBAL;
     else if (sym_table.current_scope_level == 1) return SCOPE_FUNCTION;
     else return SCOPE_BLOCK;
+}
+
+
+// Type checking helper functions
+data_type_t check_binary_op_type(data_type_t left, data_type_t right, char* op) {
+    // Check if both operands are numeric
+    if (!is_numeric_type(left) || !is_numeric_type(right)) {
+        char msg[256];
+        sprintf(msg, "Binary operator '%s' requires numeric operands, got '%s' and '%s'",
+                op, type_to_string(left), type_to_string(right));
+        print_type_error(msg);
+        return TYPE_UNKNOWN;
+    }
+    
+    // Check type compatibility
+    if (!are_types_compatible(left, right)) {
+        char msg[256];
+        sprintf(msg, "Type mismatch in binary operation '%s': '%s' and '%s' are not compatible",
+                op, type_to_string(left), type_to_string(right));
+        print_type_error(msg);
+        return TYPE_UNKNOWN;
+    }
+    
+    // Return the result type (promote to float if either operand is float)
+    if (left == TYPE_FLOAT || right == TYPE_FLOAT) {
+        return TYPE_FLOAT;
+    }
+    return left;
+}
+
+data_type_t check_relational_op_type(data_type_t left, data_type_t right, char* op) {
+    if (!is_numeric_type(left) || !is_numeric_type(right)) {
+        char msg[256];
+        sprintf(msg, "Relational operator '%s' requires numeric operands, got '%s' and '%s'",
+                op, type_to_string(left), type_to_string(right));
+        print_type_error(msg);
+        return TYPE_UNKNOWN;
+    }
+    
+    if (!are_types_compatible(left, right)) {
+        char msg[256];
+        sprintf(msg, "Type mismatch in relational operation '%s': '%s' and '%s' are not compatible",
+                op, type_to_string(left), type_to_string(right));
+        print_type_error(msg);
+        return TYPE_UNKNOWN;
+    }
+    
+    return TYPE_INT; // Relational operators return boolean (represented as int)
+}
+
+data_type_t check_logical_op_type(data_type_t left, data_type_t right, char* op) {
+    if (!is_numeric_type(left) || !is_numeric_type(right)) {
+        char msg[256];
+        sprintf(msg, "Logical operator '%s' requires numeric operands, got '%s' and '%s'",
+                op, type_to_string(left), type_to_string(right));
+        print_type_error(msg);
+        return TYPE_UNKNOWN;
+    }
+    
+    if (!are_types_compatible(left, right)) {
+        char msg[256];
+        sprintf(msg, "Type mismatch in logical operation '%s': '%s' and '%s' are not compatible",
+                op, type_to_string(left), type_to_string(right));
+        print_type_error(msg);
+        return TYPE_UNKNOWN;
+    }
+    
+    return TYPE_INT;
+}
+
+void check_assignment_type(data_type_t left_type, data_type_t right_type, int is_lvalue) {
+    if (!is_lvalue) {
+        print_type_error("Left side of assignment must be an lvalue (variable or array element)");
+        return;
+    }
+    
+    // Arrays cannot be assigned directly
+    if (is_array_type(left_type)) {
+        print_type_error("Cannot assign to an array directly");
+        return;
+    }
+    
+    if (!are_types_compatible(left_type, right_type)) {
+        char msg[256];
+        sprintf(msg, "Type mismatch in assignment: cannot assign '%s' to '%s'",
+                type_to_string(right_type), type_to_string(left_type));
+        print_type_error(msg);
+    }
+}
+
+void check_condition_type(data_type_t cond_type) {
+    if (!is_numeric_type(cond_type)) {
+        char msg[256];
+        sprintf(msg, "Condition must be numeric type, got '%s'", type_to_string(cond_type));
+        print_type_error(msg);
+    }
+}
+
+void check_pointer_dereference(data_type_t type) {
+    if (!is_pointer_type(type) && !is_array_type(type)) {
+        char msg[256];
+        sprintf(msg, "Cannot dereference non-pointer type '%s' - attempting to use an integer as a pointer",
+                type_to_string(type));
+        print_type_error(msg);
+    }
 }
 %}
 
@@ -40,6 +143,10 @@ scope_type_t get_current_scope_type() {
     float float_val;
     char* string_val;
     int type_val;
+    struct {
+        data_type_t type;
+        int is_lvalue;
+    } expr_info;
 }
 
 /* Token declarations */
@@ -72,6 +179,9 @@ scope_type_t get_current_scope_type() {
 
 /* Type declarations */
 %type <type_val> data_type
+%type <expr_info> expression assignment_expr ternary_expr logical_or_expr logical_and_expr
+%type <expr_info> bit_or_expr bit_xor_expr bit_and_expr equality_expr relational_expr
+%type <expr_info> shift_expr additive_expr multiplicative_expr unary_expr postfix_expr primary_expr
 
 /* Operator precedence and associativity */
 %right ASSIGN_TOK ADD_ASSIGN_TOK SUB_ASSIGN_TOK MUL_ASSIGN_TOK DIV_ASSIGN_TOK MOD_ASSIGN_TOK
@@ -180,8 +290,16 @@ declarator: ID_TOK
            }
          | ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
            {
-             // Add array variable to symbol table
-             if (!add_symbol($1, current_type, get_current_scope_type(), line_number, 0)) {
+             // Add array to symbol table with proper array type
+             data_type_t array_type;
+             switch(current_type) {
+                 case TYPE_INT: array_type = TYPE_INT_ARRAY; break;
+                 case TYPE_FLOAT: array_type = TYPE_FLOAT_ARRAY; break;
+                 case TYPE_CHAR: array_type = TYPE_CHAR_ARRAY; break;
+                 default: array_type = current_type; break;
+             }
+             if (!add_symbol_with_attrs($1, array_type, get_current_scope_type(), 
+                                       line_number, 0, 1, $3, 0)) {
                  error_count++;
              }
              printf("SYNTAX OK: Array declaration '%s[%d]'\n", $1, $3);
@@ -189,8 +307,16 @@ declarator: ID_TOK
            }
          | ID_TOK LBRACKET_TOK RBRACKET_TOK
            {
-             // Add array variable to symbol table (no size specified)
-             if (!add_symbol($1, current_type, get_current_scope_type(), line_number, 0)) {
+             // Add array without size
+             data_type_t array_type;
+             switch(current_type) {
+                 case TYPE_INT: array_type = TYPE_INT_ARRAY; break;
+                 case TYPE_FLOAT: array_type = TYPE_FLOAT_ARRAY; break;
+                 case TYPE_CHAR: array_type = TYPE_CHAR_ARRAY; break;
+                 default: array_type = current_type; break;
+             }
+             if (!add_symbol_with_attrs($1, array_type, get_current_scope_type(), 
+                                       line_number, 0, 1, 0, 0)) {
                  error_count++;
              }
              printf("SYNTAX OK: Array declaration '%s[]'\n", $1);
@@ -400,9 +526,15 @@ expression_statement: expression SEMICOLON_TOK
 
 /* Selection statements */
 selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement
-                    { print_syntax_success("If statement"); }
+                    { 
+                      check_condition_type($3.type);
+                      print_syntax_success("If statement"); 
+                    }
                    | IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement
-                    { print_syntax_success("If-else statement"); }
+                    { 
+                      check_condition_type($3.type);
+                      print_syntax_success("If-else statement"); 
+                    }
                    | IF_TOK LPAREN_TOK expression error statement
                     {
                       printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in if condition\n", line_number);
@@ -425,13 +557,19 @@ selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement
 
 /* Iteration statements */
 iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement
-                    { print_syntax_success("While loop"); }
+                    { 
+                      check_condition_type($3.type);
+                      print_syntax_success("While loop"); 
+                    }
                    | FOR_TOK LPAREN_TOK expression_statement expression_statement RPAREN_TOK statement
                     { print_syntax_success("For loop"); }
                    | FOR_TOK LPAREN_TOK expression_statement expression_statement expression RPAREN_TOK statement
                     { print_syntax_success("For loop with increment"); }
                    | DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
-                    { print_syntax_success("Do-while loop"); }
+                    { 
+                      check_condition_type($5.type);
+                      print_syntax_success("Do-while loop"); 
+                    }
                    | WHILE_TOK LPAREN_TOK expression error statement
                     {
                       printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in while condition\n", line_number);
@@ -467,28 +605,68 @@ jump_statement: RETURN_TOK expression SEMICOLON_TOK
 
 /* Expressions */
 expression: assignment_expr
+           { $$ = $1; }
           | expression COMMA_TOK assignment_expr
+           { $$.type = $3.type; $$.is_lvalue = 0; }
           | expression error assignment_expr
            {
              printf("SYNTAX ERROR (Line %d): Missing comma ',' between expressions\n", line_number);
              error_count++;
              yyerrok;
+             $$.type = TYPE_UNKNOWN; $$.is_lvalue = 0;
            }
           | expression COMMA_TOK error
            {
              printf("SYNTAX ERROR (Line %d): Invalid expression after comma\n", line_number);
              error_count++;
              yyerrok;
+             $$.type = TYPE_UNKNOWN; $$.is_lvalue = 0;
            }
           ;
 
 assignment_expr: ternary_expr
+                { $$ = $1; }
                | unary_expr ASSIGN_TOK assignment_expr
+                {
+                  check_assignment_type($1.type, $3.type, $1.is_lvalue);
+                  $$.type = $1.type;
+                  $$.is_lvalue = 0;
+                }
                | unary_expr ADD_ASSIGN_TOK assignment_expr
+                {
+                  check_assignment_type($1.type, $3.type, $1.is_lvalue);
+                  check_binary_op_type($1.type, $3.type, "+");
+                  $$.type = $1.type;
+                  $$.is_lvalue = 0;
+                }
                | unary_expr SUB_ASSIGN_TOK assignment_expr
+                {
+                  check_assignment_type($1.type, $3.type, $1.is_lvalue);
+                  check_binary_op_type($1.type, $3.type, "-");
+                  $$.type = $1.type;
+                  $$.is_lvalue = 0;
+                }
                | unary_expr MUL_ASSIGN_TOK assignment_expr
+                {
+                  check_assignment_type($1.type, $3.type, $1.is_lvalue);
+                  check_binary_op_type($1.type, $3.type, "*");
+                  $$.type = $1.type;
+                  $$.is_lvalue = 0;
+                }
                | unary_expr DIV_ASSIGN_TOK assignment_expr
+                {
+                  check_assignment_type($1.type, $3.type, $1.is_lvalue);
+                  check_binary_op_type($1.type, $3.type, "/");
+                  $$.type = $1.type;
+                  $$.is_lvalue = 0;
+                }
                | unary_expr MOD_ASSIGN_TOK assignment_expr
+                {
+                  check_assignment_type($1.type, $3.type, $1.is_lvalue);
+                  check_binary_op_type($1.type, $3.type, "%");
+                  $$.type = $1.type;
+                  $$.is_lvalue = 0;
+                }
                | unary_expr error assignment_expr
                 {
                   printf("SYNTAX ERROR (Line %d): Invalid assignment operator\n", line_number);
@@ -504,7 +682,18 @@ assignment_expr: ternary_expr
                ;
 
 ternary_expr: logical_or_expr
+             { $$ = $1; }
             | logical_or_expr TERNARY_TOK expression COLON_TOK ternary_expr
+             {
+               if (!are_types_compatible($3.type, $5.type)) {
+                 char msg[256];
+                 sprintf(msg, "Type mismatch in ternary operator: '%s' and '%s' are not compatible",
+                         type_to_string($3.type), type_to_string($5.type));
+                 print_type_error(msg);
+               }
+               $$.type = $3.type;
+               $$.is_lvalue = 0;
+             }
             | logical_or_expr TERNARY_TOK expression error ternary_expr
              {
                printf("SYNTAX ERROR (Line %d): Missing ':' in ternary operator\n", line_number);
@@ -526,57 +715,163 @@ ternary_expr: logical_or_expr
             ;
 
 logical_or_expr: logical_and_expr
+                { $$ = $1; }
                | logical_or_expr OR_TOK logical_and_expr
+                {
+                  $$.type = check_logical_op_type($1.type, $3.type, "||");
+                  $$.is_lvalue = 0;
+                }
                ;
 
 logical_and_expr: bit_or_expr
+                 { $$ = $1; }
                 | logical_and_expr AND_TOK bit_or_expr
+                 {
+                   $$.type = check_logical_op_type($1.type, $3.type, "&&");
+                   $$.is_lvalue = 0;
+                 }
                 ;
 
 bit_or_expr: bit_xor_expr
+            { $$ = $1; }
            | bit_or_expr BIT_OR_TOK bit_xor_expr
+            {
+              $$.type = check_binary_op_type($1.type, $3.type, "|");
+              $$.is_lvalue = 0;
+            }
            ;
 
 bit_xor_expr: bit_and_expr
+             { $$ = $1; }
             | bit_xor_expr BIT_XOR_TOK bit_and_expr
+             {
+               $$.type = check_binary_op_type($1.type, $3.type, "^");
+               $$.is_lvalue = 0;
+             }
             ;
 
 bit_and_expr: equality_expr
+             { $$ = $1; }
             | bit_and_expr BIT_AND_TOK equality_expr
+             {
+               $$.type = check_binary_op_type($1.type, $3.type, "&");
+               $$.is_lvalue = 0;
+             }
             ;
 
 equality_expr: relational_expr
+              { $$ = $1; }
              | equality_expr EQ_TOK relational_expr
+              {
+                $$.type = check_relational_op_type($1.type, $3.type, "==");
+                $$.is_lvalue = 0;
+              }
              | equality_expr NEQ_TOK relational_expr
+              {
+                $$.type = check_relational_op_type($1.type, $3.type, "!=");
+                $$.is_lvalue = 0;
+              }
              ;
 
 relational_expr: shift_expr
+                { $$ = $1; }
                | relational_expr LT_TOK shift_expr
+                {
+                  $$.type = check_relational_op_type($1.type, $3.type, "<");
+                  $$.is_lvalue = 0;
+                }
                | relational_expr GT_TOK shift_expr
+                {
+                  $$.type = check_relational_op_type($1.type, $3.type, ">");
+                  $$.is_lvalue = 0;
+                }
                | relational_expr LE_TOK shift_expr
+                {
+                  $$.type = check_relational_op_type($1.type, $3.type, "<=");
+                  $$.is_lvalue = 0;
+                }
                | relational_expr GE_TOK shift_expr
+                {
+                  $$.type = check_relational_op_type($1.type, $3.type, ">=");
+                  $$.is_lvalue = 0;
+                }
                ;
 
 shift_expr: additive_expr
+           { $$ = $1; }
           | shift_expr BIT_LSHIFT_TOK additive_expr
+           {
+             $$.type = check_binary_op_type($1.type, $3.type, "<<");
+             $$.is_lvalue = 0;
+           }
           | shift_expr BIT_RSHIFT_TOK additive_expr
+           {
+             $$.type = check_binary_op_type($1.type, $3.type, ">>");
+             $$.is_lvalue = 0;
+           }
           ;
 
 additive_expr: multiplicative_expr
+              { $$ = $1; }
              | additive_expr ADD_TOK multiplicative_expr
+              {
+                $$.type = check_binary_op_type($1.type, $3.type, "+");
+                $$.is_lvalue = 0;
+              }
              | additive_expr SUB_TOK multiplicative_expr
+              {
+                $$.type = check_binary_op_type($1.type, $3.type, "-");
+                $$.is_lvalue = 0;
+              }
              ;
 
 multiplicative_expr: unary_expr
+                    { $$ = $1; }
                    | multiplicative_expr MUL_TOK unary_expr
+                    {
+                      $$.type = check_binary_op_type($1.type, $3.type, "*");
+                      $$.is_lvalue = 0;
+                    }
                    | multiplicative_expr DIV_TOK unary_expr
+                    {
+                      $$.type = check_binary_op_type($1.type, $3.type, "/");
+                      $$.is_lvalue = 0;
+                    }
                    | multiplicative_expr MOD_TOK unary_expr
+                    {
+                      $$.type = check_binary_op_type($1.type, $3.type, "%");
+                      $$.is_lvalue = 0;
+                    }
                    ;
 
 unary_expr: postfix_expr
+           { $$ = $1; }
           | INC_TOK unary_expr
+           {
+             if (!$2.is_lvalue) {
+               print_type_error("Increment operator requires an lvalue");
+             }
+             $$.type = $2.type;
+             $$.is_lvalue = 0;
+           }
           | DEC_TOK unary_expr
+           {
+             if (!$2.is_lvalue) {
+               print_type_error("Decrement operator requires an lvalue");
+             }
+             $$.type = $2.type;
+             $$.is_lvalue = 0;
+           }
           | unary_operator unary_expr
+           {
+             if (!is_numeric_type($2.type)) {
+               char msg[256];
+               sprintf(msg, "Unary operator requires numeric operand, got '%s'", type_to_string($2.type));
+               print_type_error(msg);
+             }
+             $$.type = $2.type;
+             $$.is_lvalue = 0;
+           }
           ;
 
 unary_operator: ADD_TOK %prec UNARY_PLUS
@@ -586,37 +881,77 @@ unary_operator: ADD_TOK %prec UNARY_PLUS
               ;
 
 postfix_expr: primary_expr
+             { $$ = $1; }
             | postfix_expr LBRACKET_TOK expression RBRACKET_TOK
+             {
+               // Array subscripting
+               if (!is_array_type($1.type) && !is_pointer_type($1.type)) {
+                 check_pointer_dereference($1.type);
+               }
+               if (!is_numeric_type($3.type)) {
+                 char msg[256];
+                 sprintf(msg, "Array index must be numeric type, got '%s'", type_to_string($3.type));
+                 print_type_error(msg);
+               }
+               $$.type = get_base_type($1.type);
+               $$.is_lvalue = 1;
+             }
             | postfix_expr LBRACKET_TOK expression error
               {
                 printf("SYNTAX ERROR (Line %d): Missing closing bracket ']'\n", line_number);
                 error_count++;
                 yyerrok;
+                $$.type = TYPE_UNKNOWN; $$.is_lvalue = 0;
               }
             | postfix_expr LBRACKET_TOK error RBRACKET_TOK
               {
                 printf("SYNTAX ERROR (Line %d): Invalid array index expression\n", line_number);
                 error_count++;
                 yyerrok;
+                $$.type = TYPE_UNKNOWN; $$.is_lvalue = 0;
               }
             | postfix_expr LPAREN_TOK RPAREN_TOK
-              { print_syntax_success("Function call"); }
+              { 
+                print_syntax_success("Function call");
+                $$.type = TYPE_INT; // Assume int return type
+                $$.is_lvalue = 0;
+              }
             | postfix_expr LPAREN_TOK argument_list RPAREN_TOK
-              { print_syntax_success("Function call with arguments"); }
+              { 
+                print_syntax_success("Function call with arguments");
+                $$.type = TYPE_INT; // Assume int return type
+                $$.is_lvalue = 0;
+              }
             | postfix_expr LPAREN_TOK argument_list error
               {
                 printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')' in function call\n", line_number);
                 error_count++;
                 yyerrok;
+                $$.type = TYPE_UNKNOWN; $$.is_lvalue = 0;
               }
             | postfix_expr LPAREN_TOK error RPAREN_TOK
               {
                 printf("SYNTAX ERROR (Line %d): Invalid function arguments\n", line_number);
                 error_count++;
                 yyerrok;
+                $$.type = TYPE_UNKNOWN; $$.is_lvalue = 0;
               }
             | postfix_expr INC_TOK
+             {
+               if (!$1.is_lvalue) {
+                 print_type_error("Increment operator requires an lvalue");
+               }
+               $$.type = $1.type;
+               $$.is_lvalue = 0;
+             }
             | postfix_expr DEC_TOK
+             {
+               if (!$1.is_lvalue) {
+                 print_type_error("Decrement operator requires an lvalue");
+               }
+               $$.type = $1.type;
+               $$.is_lvalue = 0;
+             }
             ;
 
 argument_list: argument_list COMMA_TOK expression
@@ -641,28 +976,52 @@ primary_expr: ID_TOK
                if (!is_variable_declared($1)) {
                    printf("ERROR (Line %d): Variable '%s' used before declaration\n", line_number, $1);
                    error_count++;
+                   $$.type = TYPE_UNKNOWN;
+                   $$.is_lvalue = 0;
                } else {
                    symbol_t* sym = lookup_symbol($1);
                    printf("VARIABLE USE: '%s' (Type: %s, Scope: %s)\n", 
                           $1, type_to_string(sym->type), scope_to_string(sym->scope));
+                   $$.type = sym->type;
+                   $$.is_lvalue = !sym->is_array; // Arrays are not lvalues directly
                }
                free($1);
              }
             | INTCONST_TOK
+             {
+               $$.type = TYPE_INT;
+               $$.is_lvalue = 0;
+             }
             | FLOATCONST_TOK
-            | STRING_TOK { free($1); }
+             {
+               $$.type = TYPE_FLOAT;
+               $$.is_lvalue = 0;
+             }
+            | STRING_TOK 
+             { 
+               free($1);
+               $$.type = TYPE_CHAR_PTR;
+               $$.is_lvalue = 0;
+             }
             | LPAREN_TOK expression RPAREN_TOK
+             {
+               $$ = $2;
+             }
             | LPAREN_TOK expression error
               {
                 printf("SYNTAX ERROR (Line %d): Missing closing parenthesis ')'\n", line_number);
                 error_count++;
                 yyerrok;
+                $$.type = TYPE_UNKNOWN;
+                $$.is_lvalue = 0;
               }
             | LPAREN_TOK error RPAREN_TOK
               {
                 printf("SYNTAX ERROR (Line %d): Invalid expression inside parentheses\n", line_number);
                 error_count++;
                 yyerrok;
+                $$.type = TYPE_UNKNOWN;
+                $$.is_lvalue = 0;
               }
             ;
 
@@ -670,20 +1029,31 @@ primary_expr: ID_TOK
 
 #include "lex.yy.c"
 
+// Define token_to_type function after tokens are defined
+data_type_t token_to_type(int token) {
+    switch(token) {
+        case INT_TOK: return TYPE_INT;
+        case FLOAT_TOK: return TYPE_FLOAT;
+        case CHAR_TOK: return TYPE_CHAR;
+        case VOID_TOK: return TYPE_VOID;
+        default: return TYPE_UNKNOWN;
+    }
+}
+
 int main() {
-    printf("=== C LANGUAGE SUBSET PARSER WITH SYMBOL TABLE ===\n");
+    printf("=== C LANGUAGE SUBSET PARSER WITH TYPE CHECKING ===\n");
     printf("Parsing input...\n\n");
     
     if (yyparse() == 0) {
         printf("\n=== PARSING SUCCESSFUL ===\n");
         if (error_count == 0) {
-            printf("No syntax errors found!\n");
+            printf("No syntax or type errors found!\n");
         } else {
             printf("Parsing completed with %d error(s).\n", error_count);
         }
     } else {
         printf("\n=== PARSING FAILED ===\n");
-        printf("Syntax errors found at line %d\n", line_number);
+        printf("Errors found at line %d\n", line_number);
     }
     
     return 0;
