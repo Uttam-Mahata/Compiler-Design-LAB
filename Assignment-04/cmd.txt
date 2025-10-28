@@ -1,0 +1,23 @@
+
+
+   Build Commands (Step by Step):
+
+     # Step 1: Generate parser from yacc
+     yacc -d parse.y
+     
+     # Step 2: Generate lexer from lex
+     lex lex.l
+     
+     # Step 3: Compile symbol table
+     gcc -Wall -g -c symbol_table.c
+     
+     # Step 4: Link everything together
+     gcc -Wall -g -o symbol_parser y.tab.c symbol_table.o -lfl
+
+   Execution Commands:
+
+     # Test with a C file
+     ./symbol_parser < test_type_checking.c
+     
+     # Test with any test file
+     ./symbol_parser < test_arrays.c

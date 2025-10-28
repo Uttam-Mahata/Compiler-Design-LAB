@@ -51,31 +51,31 @@ graph TB
 ```mermaid
 sequenceDiagram
     participant SC as Source Code
-    participant LEX as Lexer (lex.l)
+    participant LEX as Lexer
     participant TOK as Token Stream
-    participant PAR as Parser (parse.y)
+    participant PARSER as Parser
     participant SYM as Symbol Table
     
     SC->>LEX: Read character stream
     LEX->>LEX: Pattern matching with regex
-    LEX->>LEX: check_keyword("int")
+    LEX->>LEX: check_keyword int
     LEX->>TOK: Generate INT_TOK
-    TOK->>PAR: yylex() returns INT_TOK
+    TOK->>PARSER: yylex returns INT_TOK
     
-    SC->>LEX: Read "x"
-    LEX->>LEX: Match [a-zA-Z_][a-zA-Z0-9_]*
-    LEX->>TOK: Generate ID_TOK, yylval.string_val = "x"
-    TOK->>PAR: yylex() returns ID_TOK
+    SC->>LEX: Read x
+    LEX->>LEX: Match identifier pattern
+    LEX->>TOK: Generate ID_TOK with yylval
+    TOK->>PARSER: yylex returns ID_TOK
     
-    PAR->>PAR: Match rule: data_type declarator
-    PAR->>SYM: add_symbol("x", TYPE_INT, ...)
+    PARSER->>PARSER: Match rule data_type declarator
+    PARSER->>SYM: add_symbol x TYPE_INT
     SYM->>SYM: Check for duplicates
-    SYM->>PAR: Success/Failure
+    SYM->>PARSER: Success or Failure
     
-    SC->>LEX: Read ";"
+    SC->>LEX: Read semicolon
     LEX->>TOK: Generate SEMICOLON_TOK
-    TOK->>PAR: Complete declaration rule
-    PAR->>PAR: print_syntax_success()
+    TOK->>PARSER: Complete declaration rule
+    PARSER->>PARSER: print_syntax_success
 ```
 
 **Step-by-Step Explanation:**
@@ -206,32 +206,32 @@ void exit_scope() {
 
 ```mermaid
 sequenceDiagram
-    participant SRC as Source: x + y
+    participant SRC as Source
     participant LEX as Lexer
-    participant PAR as Parser
+    participant PARSER as Parser
     participant SYM as Symbol Table
     participant TC as Type Checker
     
-    SRC->>LEX: "x"
-    LEX->>PAR: ID_TOK("x")
-    PAR->>SYM: lookup_symbol("x")
-    SYM->>PAR: Return symbol {type: TYPE_INT, ...}
-    PAR->>TC: Left operand type = TYPE_INT
+    SRC->>LEX: Read x
+    LEX->>PARSER: ID_TOK x
+    PARSER->>SYM: lookup_symbol x
+    SYM->>PARSER: Return symbol type TYPE_INT
+    PARSER->>TC: Left operand type equals TYPE_INT
     
-    SRC->>LEX: "+"
-    LEX->>PAR: ADD_TOK
+    SRC->>LEX: Read plus
+    LEX->>PARSER: ADD_TOK
     
-    SRC->>LEX: "y"
-    LEX->>PAR: ID_TOK("y")
-    PAR->>SYM: lookup_symbol("y")
-    SYM->>PAR: Return symbol {type: TYPE_FLOAT, ...}
-    PAR->>TC: Right operand type = TYPE_FLOAT
+    SRC->>LEX: Read y
+    LEX->>PARSER: ID_TOK y
+    PARSER->>SYM: lookup_symbol y
+    SYM->>PARSER: Return symbol type TYPE_FLOAT
+    PARSER->>TC: Right operand type equals TYPE_FLOAT
     
-    TC->>TC: check_binary_op_type(TYPE_INT, TYPE_FLOAT, "+")
-    TC->>TC: are_types_compatible(TYPE_INT, TYPE_FLOAT)
-    TC->>TC: is_numeric_type() for both
-    TC->>PAR: Result type = TYPE_FLOAT (promotion)
-    PAR->>PAR: Set expression type = TYPE_FLOAT
+    TC->>TC: check_binary_op_type INT FLOAT ADD
+    TC->>TC: are_types_compatible check
+    TC->>TC: is_numeric_type for both
+    TC->>PARSER: Result type equals TYPE_FLOAT
+    PARSER->>PARSER: Set expression type TYPE_FLOAT
 ```
 
 **Type Checking Process:**
