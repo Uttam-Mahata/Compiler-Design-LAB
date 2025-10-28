@@ -40,7 +40,8 @@ int add_symbol(char* name, data_type_t type, scope_type_t scope, int line_no, in
 int add_symbol_with_attrs(char* name, data_type_t type, scope_type_t scope, int line_no, 
                           int is_function, int is_array, int array_size, int is_pointer) {
     
-    // Check if symbol already exists in current scope
+    /* Check if symbol already exists in current scope */
+    
     symbol_t* existing = lookup_symbol_in_scope(name, sym_table.current_scope_level);
     if (existing != NULL) {
         printf("ERROR (Line %d): Variable '%s' already declared in current scope (previously declared at line %d)\n", 
