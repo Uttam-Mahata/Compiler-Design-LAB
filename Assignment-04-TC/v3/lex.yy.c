@@ -499,7 +499,7 @@ char *yytext;
 #include<string.h>
 #include "y.tab.h"
 
-#define MAX_ID_LENGTH 31
+#define MAX_ID_LENGTH 32
 #define MAX_NUM_LENGTH 10
 #define MAX_STRING_LENGTH 256
 

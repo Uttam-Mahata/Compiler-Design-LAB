@@ -1,0 +1,4938 @@
+Terminals unused in grammar
+
+    ERROR_TOK
+    ID_TOO_LONG_ERROR
+    NUM_TOO_LONG_ERROR
+    ILLEGAL_CHAR_ERROR
+    UNMATCHED_STRING_ERROR
+    SPELLING_ERROR
+    INVALID_NUM_ERROR
+
+
+Rules useless in parser due to conflicts
+
+    7 $@2: ε
+
+   14 $@4: ε
+
+   16 $@5: ε
+
+   18 $@6: ε
+
+
+State 13 conflicts: 1 shift/reduce
+State 19 conflicts: 3 reduce/reduce
+State 32 conflicts: 1 shift/reduce
+State 90 conflicts: 1 shift/reduce
+State 102 conflicts: 1 shift/reduce
+State 112 conflicts: 1 shift/reduce
+State 135 conflicts: 11 shift/reduce
+State 178 conflicts: 11 shift/reduce
+State 181 conflicts: 5 shift/reduce
+State 184 conflicts: 2 shift/reduce
+State 221 conflicts: 2 shift/reduce
+State 240 conflicts: 5 shift/reduce
+State 244 conflicts: 5 shift/reduce
+State 248 conflicts: 2 reduce/reduce
+State 256 conflicts: 1 shift/reduce
+State 259 conflicts: 3 reduce/reduce
+State 261 conflicts: 2 shift/reduce
+State 263 conflicts: 2 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 $@1: ε
+
+    2 program: $@1 translation_unit
+
+    3 translation_unit: translation_unit external_declaration
+    4                 | external_declaration
+
+    5 external_declaration: declaration
+    6                     | function_definition
+
+    7 $@2: ε
+
+    8 declaration: data_type $@2 declarator_list SEMICOLON_TOK
+    9            | data_type declarator_list error
+   10            | data_type error SEMICOLON_TOK
+   11            | error declarator_list SEMICOLON_TOK
+
+   12 $@3: ε
+
+   13 function_definition: data_type ID_TOK $@3 LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
+
+   14 $@4: ε
+
+   15 function_definition: data_type ID_TOK $@4 LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
+
+   16 $@5: ε
+
+   17 function_definition: data_type ID_TOK $@5 LPAREN_TOK RPAREN_TOK function_body
+
+   18 $@6: ε
+
+   19 function_definition: data_type ID_TOK $@6 LPAREN_TOK parameter_list RPAREN_TOK function_body
+
+   20 $@7: ε
+
+   21 function_body: LBRACE_TOK $@7 statement_list RBRACE_TOK
+
+   22 $@8: ε
+
+   23 function_body: LBRACE_TOK $@8 RBRACE_TOK
+
+   24 data_type: INT_TOK
+   25          | FLOAT_TOK
+   26          | CHAR_TOK
+   27          | VOID_TOK
+
+   28 declarator_list: declarator_list COMMA_TOK declarator
+   29                | declarator
+   30                | declarator_list error declarator
+   31                | declarator_list COMMA_TOK error
+
+   32 declarator: ID_TOK
+   33           | ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
+   34           | ID_TOK LBRACKET_TOK RBRACKET_TOK
+   35           | ID_TOK LBRACKET_TOK INTCONST_TOK error
+   36           | ID_TOK LBRACKET_TOK error RBRACKET_TOK
+
+   37 parameter_list: parameter_list COMMA_TOK parameter
+   38               | parameter
+   39               | parameter_list error parameter
+   40               | parameter_list COMMA_TOK error
+
+   41 parameter: data_type ID_TOK
+   42          | data_type ID_TOK LBRACKET_TOK RBRACKET_TOK
+
+   43 compound_statement: LBRACE_TOK statement_list RBRACE_TOK
+   44                   | LBRACE_TOK RBRACE_TOK
+   45                   | LBRACE_TOK statement_list error
+   46                   | LBRACE_TOK error RBRACE_TOK
+
+   47 statement_list: statement_list statement
+   48               | statement
+
+   49 statement: declaration_statement
+   50          | expression_statement
+   51          | compound_statement
+   52          | selection_statement
+   53          | iteration_statement
+   54          | jump_statement
+   55          | error SEMICOLON_TOK
+
+   56 declaration_statement: declaration
+
+   57 expression_statement: expression SEMICOLON_TOK
+   58                     | SEMICOLON_TOK
+   59                     | expression error
+
+   60 selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement
+   61                    | IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement
+   62                    | IF_TOK LPAREN_TOK expression error statement
+   63                    | IF_TOK LPAREN_TOK error RPAREN_TOK statement
+   64                    | IF_TOK error expression RPAREN_TOK statement
+
+   65 iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement
+   66                    | FOR_TOK LPAREN_TOK expression_statement expression_statement RPAREN_TOK statement
+   67                    | FOR_TOK LPAREN_TOK expression_statement expression_statement expression RPAREN_TOK statement
+   68                    | DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
+   69                    | WHILE_TOK LPAREN_TOK expression error statement
+   70                    | WHILE_TOK LPAREN_TOK error RPAREN_TOK statement
+
+   71 jump_statement: RETURN_TOK expression SEMICOLON_TOK
+   72               | RETURN_TOK SEMICOLON_TOK
+   73               | RETURN_TOK expression error
+   74               | RETURN_TOK error SEMICOLON_TOK
+
+   75 expression: assignment_expr
+   76           | expression COMMA_TOK assignment_expr
+   77           | expression error assignment_expr
+   78           | expression COMMA_TOK error
+
+   79 assignment_expr: ternary_expr
+   80                | unary_expr ASSIGN_TOK assignment_expr
+   81                | unary_expr ADD_ASSIGN_TOK assignment_expr
+   82                | unary_expr SUB_ASSIGN_TOK assignment_expr
+   83                | unary_expr MUL_ASSIGN_TOK assignment_expr
+   84                | unary_expr DIV_ASSIGN_TOK assignment_expr
+   85                | unary_expr MOD_ASSIGN_TOK assignment_expr
+   86                | unary_expr error assignment_expr
+   87                | unary_expr ASSIGN_TOK error
+
+   88 ternary_expr: logical_or_expr
+   89             | logical_or_expr TERNARY_TOK expression COLON_TOK ternary_expr
+   90             | logical_or_expr TERNARY_TOK expression error ternary_expr
+   91             | logical_or_expr TERNARY_TOK error COLON_TOK ternary_expr
+   92             | logical_or_expr error expression COLON_TOK ternary_expr
+
+   93 logical_or_expr: logical_and_expr
+   94                | logical_or_expr OR_TOK logical_and_expr
+
+   95 logical_and_expr: bit_or_expr
+   96                 | logical_and_expr AND_TOK bit_or_expr
+
+   97 bit_or_expr: bit_xor_expr
+   98            | bit_or_expr BIT_OR_TOK bit_xor_expr
+
+   99 bit_xor_expr: bit_and_expr
+  100             | bit_xor_expr BIT_XOR_TOK bit_and_expr
+
+  101 bit_and_expr: equality_expr
+  102             | bit_and_expr BIT_AND_TOK equality_expr
+
+  103 equality_expr: relational_expr
+  104              | equality_expr EQ_TOK relational_expr
+  105              | equality_expr NEQ_TOK relational_expr
+
+  106 relational_expr: shift_expr
+  107                | relational_expr LT_TOK shift_expr
+  108                | relational_expr GT_TOK shift_expr
+  109                | relational_expr LE_TOK shift_expr
+  110                | relational_expr GE_TOK shift_expr
+
+  111 shift_expr: additive_expr
+  112           | shift_expr BIT_LSHIFT_TOK additive_expr
+  113           | shift_expr BIT_RSHIFT_TOK additive_expr
+
+  114 additive_expr: multiplicative_expr
+  115              | additive_expr ADD_TOK multiplicative_expr
+  116              | additive_expr SUB_TOK multiplicative_expr
+
+  117 multiplicative_expr: unary_expr
+  118                    | multiplicative_expr MUL_TOK unary_expr
+  119                    | multiplicative_expr DIV_TOK unary_expr
+  120                    | multiplicative_expr MOD_TOK unary_expr
+
+  121 unary_expr: postfix_expr
+  122           | INC_TOK unary_expr
+  123           | DEC_TOK unary_expr
+  124           | unary_operator unary_expr
+
+  125 unary_operator: ADD_TOK
+  126               | SUB_TOK
+  127               | NOT_TOK
+  128               | BIT_NOT_TOK
+
+  129 postfix_expr: primary_expr
+  130             | postfix_expr LBRACKET_TOK expression RBRACKET_TOK
+  131             | postfix_expr LBRACKET_TOK expression error
+  132             | postfix_expr LBRACKET_TOK error RBRACKET_TOK
+  133             | postfix_expr LPAREN_TOK RPAREN_TOK
+  134             | postfix_expr LPAREN_TOK argument_list RPAREN_TOK
+  135             | postfix_expr LPAREN_TOK argument_list error
+  136             | postfix_expr LPAREN_TOK error RPAREN_TOK
+  137             | postfix_expr INC_TOK
+  138             | postfix_expr DEC_TOK
+
+  139 argument_list: argument_list COMMA_TOK expression
+  140              | expression
+  141              | argument_list error expression
+  142              | argument_list COMMA_TOK error
+
+  143 primary_expr: ID_TOK
+  144             | INTCONST_TOK
+  145             | FLOATCONST_TOK
+  146             | STRING_TOK
+  147             | LPAREN_TOK expression RPAREN_TOK
+  148             | LPAREN_TOK expression error
+  149             | LPAREN_TOK error RPAREN_TOK
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256) 9 10 11 30 31 35 36 39 40 45 46 55 59 62 63 64 69 70 73 74 77 78 86 87 90 91 92 131 132 135 136 141 142 148 149
+    INT_TOK <type_val> (258) 24
+    FLOAT_TOK <type_val> (259) 25
+    CHAR_TOK <type_val> (260) 26
+    VOID_TOK <type_val> (261) 27
+    WHILE_TOK (262) 65 68 69 70
+    FOR_TOK (263) 66 67
+    DO_TOK (264) 68
+    IF_TOK (265) 60 61 62 63 64
+    ELSE_TOK (266) 61
+    RETURN_TOK (267) 71 72 73 74
+    ID_TOK <string_val> (268) 13 15 17 19 32 33 34 35 36 41 42 143
+    STRING_TOK <string_val> (269) 146
+    INTCONST_TOK <int_val> (270) 33 35 144
+    FLOATCONST_TOK <float_val> (271) 145
+    ADD_TOK (272) 115 125
+    SUB_TOK (273) 116 126
+    MUL_TOK (274) 118
+    DIV_TOK (275) 119
+    MOD_TOK (276) 120
+    LT_TOK (277) 107
+    GT_TOK (278) 108
+    LE_TOK (279) 109
+    GE_TOK (280) 110
+    EQ_TOK (281) 104
+    NEQ_TOK (282) 105
+    AND_TOK (283) 96
+    OR_TOK (284) 94
+    NOT_TOK (285) 127
+    BIT_AND_TOK (286) 102
+    BIT_OR_TOK (287) 98
+    BIT_XOR_TOK (288) 100
+    BIT_NOT_TOK (289) 128
+    BIT_LSHIFT_TOK (290) 112
+    BIT_RSHIFT_TOK (291) 113
+    ASSIGN_TOK (292) 80 87
+    ADD_ASSIGN_TOK (293) 81
+    SUB_ASSIGN_TOK (294) 82
+    MUL_ASSIGN_TOK (295) 83
+    DIV_ASSIGN_TOK (296) 84
+    MOD_ASSIGN_TOK (297) 85
+    INC_TOK (298) 122 137
+    DEC_TOK (299) 123 138
+    TERNARY_TOK (300) 89 90 91
+    COLON_TOK (301) 89 91 92
+    LPAREN_TOK (302) 13 15 17 19 60 61 62 63 65 66 67 68 69 70 133 134 135 136 147 148 149
+    RPAREN_TOK (303) 13 15 17 19 60 61 63 64 65 66 67 68 70 133 134 136 147 149
+    LBRACE_TOK (304) 21 23 43 44 45 46
+    RBRACE_TOK (305) 21 23 43 44 46
+    LBRACKET_TOK (306) 33 34 35 36 42 130 131 132
+    RBRACKET_TOK (307) 33 34 36 42 130 132
+    SEMICOLON_TOK (308) 8 10 11 13 15 55 57 58 68 71 72 74
+    COMMA_TOK (309) 28 31 37 40 76 78 139 142
+    ERROR_TOK (310)
+    ID_TOO_LONG_ERROR (311)
+    NUM_TOO_LONG_ERROR (312)
+    ILLEGAL_CHAR_ERROR (313)
+    UNMATCHED_STRING_ERROR (314)
+    SPELLING_ERROR (315)
+    INVALID_NUM_ERROR (316)
+    UNARY_MINUS (317)
+    UNARY_PLUS (318)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (64)
+        on left: 0
+    program (65)
+        on left: 2
+        on right: 0
+    $@1 (66)
+        on left: 1
+        on right: 2
+    translation_unit (67)
+        on left: 3 4
+        on right: 2 3
+    external_declaration (68)
+        on left: 5 6
+        on right: 3 4
+    declaration (69)
+        on left: 8 9 10 11
+        on right: 5 56
+    $@2 (70)
+        on left: 7
+        on right: 8
+    function_definition (71)
+        on left: 13 15 17 19
+        on right: 6
+    $@3 (72)
+        on left: 12
+        on right: 13
+    $@4 (73)
+        on left: 14
+        on right: 15
+    $@5 (74)
+        on left: 16
+        on right: 17
+    $@6 (75)
+        on left: 18
+        on right: 19
+    function_body (76)
+        on left: 21 23
+        on right: 17 19
+    $@7 (77)
+        on left: 20
+        on right: 21
+    $@8 (78)
+        on left: 22
+        on right: 23
+    data_type <type_val> (79)
+        on left: 24 25 26 27
+        on right: 8 9 10 13 15 17 19 41 42
+    declarator_list (80)
+        on left: 28 29 30 31
+        on right: 8 9 11 28 30 31
+    declarator (81)
+        on left: 32 33 34 35 36
+        on right: 28 29 30
+    parameter_list (82)
+        on left: 37 38 39 40
+        on right: 15 19 37 39 40
+    parameter (83)
+        on left: 41 42
+        on right: 37 38 39
+    compound_statement (84)
+        on left: 43 44 45 46
+        on right: 51
+    statement_list (85)
+        on left: 47 48
+        on right: 21 43 45 47
+    statement (86)
+        on left: 49 50 51 52 53 54 55
+        on right: 47 48 60 61 62 63 64 65 66 67 68 69 70
+    declaration_statement (87)
+        on left: 56
+        on right: 49
+    expression_statement (88)
+        on left: 57 58 59
+        on right: 50 66 67
+    selection_statement (89)
+        on left: 60 61 62 63 64
+        on right: 52
+    iteration_statement (90)
+        on left: 65 66 67 68 69 70
+        on right: 53
+    jump_statement (91)
+        on left: 71 72 73 74
+        on right: 54
+    expression <expr_info> (92)
+        on left: 75 76 77 78
+        on right: 57 59 60 61 62 64 65 67 68 69 71 73 76 77 78 89 90 92 130 131 139 140 141 147 148
+    assignment_expr <expr_info> (93)
+        on left: 79 80 81 82 83 84 85 86 87
+        on right: 75 76 77 80 81 82 83 84 85 86
+    ternary_expr <expr_info> (94)
+        on left: 88 89 90 91 92
+        on right: 79 89 90 91 92
+    logical_or_expr <expr_info> (95)
+        on left: 93 94
+        on right: 88 89 90 91 92 94
+    logical_and_expr <expr_info> (96)
+        on left: 95 96
+        on right: 93 94 96
+    bit_or_expr <expr_info> (97)
+        on left: 97 98
+        on right: 95 96 98
+    bit_xor_expr <expr_info> (98)
+        on left: 99 100
+        on right: 97 98 100
+    bit_and_expr <expr_info> (99)
+        on left: 101 102
+        on right: 99 100 102
+    equality_expr <expr_info> (100)
+        on left: 103 104 105
+        on right: 101 102 104 105
+    relational_expr <expr_info> (101)
+        on left: 106 107 108 109 110
+        on right: 103 104 105 107 108 109 110
+    shift_expr <expr_info> (102)
+        on left: 111 112 113
+        on right: 106 107 108 109 110 112 113
+    additive_expr <expr_info> (103)
+        on left: 114 115 116
+        on right: 111 112 113 115 116
+    multiplicative_expr <expr_info> (104)
+        on left: 117 118 119 120
+        on right: 114 115 116 118 119 120
+    unary_expr <expr_info> (105)
+        on left: 121 122 123 124
+        on right: 80 81 82 83 84 85 86 87 117 118 119 120 122 123 124
+    unary_operator (106)
+        on left: 125 126 127 128
+        on right: 124
+    postfix_expr <expr_info> (107)
+        on left: 129 130 131 132 133 134 135 136 137 138
+        on right: 121 130 131 132 133 134 135 136 137 138
+    argument_list (108)
+        on left: 139 140 141 142
+        on right: 134 135 139 141 142
+    primary_expr <expr_info> (109)
+        on left: 143 144 145 146 147 148 149
+        on right: 129
+
+
+State 0
+
+    0 $accept: • program $end
+
+    $default  reduce using rule 1 ($@1)
+
+    program  go to state 1
+    $@1      go to state 2
+
+
+State 1
+
+    0 $accept: program • $end
+
+    $end  shift, and go to state 3
+
+
+State 2
+
+    2 program: $@1 • translation_unit
+
+    error      shift, and go to state 4
+    INT_TOK    shift, and go to state 5
+    FLOAT_TOK  shift, and go to state 6
+    CHAR_TOK   shift, and go to state 7
+    VOID_TOK   shift, and go to state 8
+
+    translation_unit      go to state 9
+    external_declaration  go to state 10
+    declaration           go to state 11
+    function_definition   go to state 12
+    data_type             go to state 13
+
+
+State 3
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 4
+
+   11 declaration: error • declarator_list SEMICOLON_TOK
+
+    ID_TOK  shift, and go to state 14
+
+    declarator_list  go to state 15
+    declarator       go to state 16
+
+
+State 5
+
+   24 data_type: INT_TOK •
+
+    $default  reduce using rule 24 (data_type)
+
+
+State 6
+
+   25 data_type: FLOAT_TOK •
+
+    $default  reduce using rule 25 (data_type)
+
+
+State 7
+
+   26 data_type: CHAR_TOK •
+
+    $default  reduce using rule 26 (data_type)
+
+
+State 8
+
+   27 data_type: VOID_TOK •
+
+    $default  reduce using rule 27 (data_type)
+
+
+State 9
+
+    2 program: $@1 translation_unit •
+    3 translation_unit: translation_unit • external_declaration
+
+    error      shift, and go to state 4
+    INT_TOK    shift, and go to state 5
+    FLOAT_TOK  shift, and go to state 6
+    CHAR_TOK   shift, and go to state 7
+    VOID_TOK   shift, and go to state 8
+
+    $end  reduce using rule 2 (program)
+
+    external_declaration  go to state 17
+    declaration           go to state 11
+    function_definition   go to state 12
+    data_type             go to state 13
+
+
+State 10
+
+    4 translation_unit: external_declaration •
+
+    $default  reduce using rule 4 (translation_unit)
+
+
+State 11
+
+    5 external_declaration: declaration •
+
+    $default  reduce using rule 5 (external_declaration)
+
+
+State 12
+
+    6 external_declaration: function_definition •
+
+    $default  reduce using rule 6 (external_declaration)
+
+
+State 13
+
+    8 declaration: data_type • $@2 declarator_list SEMICOLON_TOK
+    9            | data_type • declarator_list error
+   10            | data_type • error SEMICOLON_TOK
+   13 function_definition: data_type • ID_TOK $@3 LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
+   15                    | data_type • ID_TOK $@4 LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
+   17                    | data_type • ID_TOK $@5 LPAREN_TOK RPAREN_TOK function_body
+   19                    | data_type • ID_TOK $@6 LPAREN_TOK parameter_list RPAREN_TOK function_body
+
+    error   shift, and go to state 18
+    ID_TOK  shift, and go to state 19
+
+    ID_TOK  [reduce using rule 7 ($@2)]
+
+    $@2              go to state 20
+    declarator_list  go to state 21
+    declarator       go to state 16
+
+
+State 14
+
+   32 declarator: ID_TOK •
+   33           | ID_TOK • LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
+   34           | ID_TOK • LBRACKET_TOK RBRACKET_TOK
+   35           | ID_TOK • LBRACKET_TOK INTCONST_TOK error
+   36           | ID_TOK • LBRACKET_TOK error RBRACKET_TOK
+
+    LBRACKET_TOK  shift, and go to state 22
+
+    $default  reduce using rule 32 (declarator)
+
+
+State 15
+
+   11 declaration: error declarator_list • SEMICOLON_TOK
+   28 declarator_list: declarator_list • COMMA_TOK declarator
+   30                | declarator_list • error declarator
+   31                | declarator_list • COMMA_TOK error
+
+    error          shift, and go to state 23
+    SEMICOLON_TOK  shift, and go to state 24
+    COMMA_TOK      shift, and go to state 25
+
+
+State 16
+
+   29 declarator_list: declarator •
+
+    $default  reduce using rule 29 (declarator_list)
+
+
+State 17
+
+    3 translation_unit: translation_unit external_declaration •
+
+    $default  reduce using rule 3 (translation_unit)
+
+
+State 18
+
+   10 declaration: data_type error • SEMICOLON_TOK
+
+    SEMICOLON_TOK  shift, and go to state 26
+
+
+State 19
+
+   13 function_definition: data_type ID_TOK • $@3 LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
+   15                    | data_type ID_TOK • $@4 LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
+   17                    | data_type ID_TOK • $@5 LPAREN_TOK RPAREN_TOK function_body
+   19                    | data_type ID_TOK • $@6 LPAREN_TOK parameter_list RPAREN_TOK function_body
+   32 declarator: ID_TOK •
+   33           | ID_TOK • LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
+   34           | ID_TOK • LBRACKET_TOK RBRACKET_TOK
+   35           | ID_TOK • LBRACKET_TOK INTCONST_TOK error
+   36           | ID_TOK • LBRACKET_TOK error RBRACKET_TOK
+
+    LBRACKET_TOK  shift, and go to state 22
+
+    LPAREN_TOK  reduce using rule 12 ($@3)
+    LPAREN_TOK  [reduce using rule 14 ($@4)]
+    LPAREN_TOK  [reduce using rule 16 ($@5)]
+    LPAREN_TOK  [reduce using rule 18 ($@6)]
+    $default    reduce using rule 32 (declarator)
+
+    $@3  go to state 27
+    $@4  go to state 28
+    $@5  go to state 29
+    $@6  go to state 30
+
+
+State 20
+
+    8 declaration: data_type $@2 • declarator_list SEMICOLON_TOK
+
+    ID_TOK  shift, and go to state 14
+
+    declarator_list  go to state 31
+    declarator       go to state 16
+
+
+State 21
+
+    9 declaration: data_type declarator_list • error
+   28 declarator_list: declarator_list • COMMA_TOK declarator
+   30                | declarator_list • error declarator
+   31                | declarator_list • COMMA_TOK error
+
+    error      shift, and go to state 32
+    COMMA_TOK  shift, and go to state 25
+
+
+State 22
+
+   33 declarator: ID_TOK LBRACKET_TOK • INTCONST_TOK RBRACKET_TOK
+   34           | ID_TOK LBRACKET_TOK • RBRACKET_TOK
+   35           | ID_TOK LBRACKET_TOK • INTCONST_TOK error
+   36           | ID_TOK LBRACKET_TOK • error RBRACKET_TOK
+
+    error         shift, and go to state 33
+    INTCONST_TOK  shift, and go to state 34
+    RBRACKET_TOK  shift, and go to state 35
+
+
+State 23
+
+   30 declarator_list: declarator_list error • declarator
+
+    ID_TOK  shift, and go to state 14
+
+    declarator  go to state 36
+
+
+State 24
+
+   11 declaration: error declarator_list SEMICOLON_TOK •
+
+    $default  reduce using rule 11 (declaration)
+
+
+State 25
+
+   28 declarator_list: declarator_list COMMA_TOK • declarator
+   31                | declarator_list COMMA_TOK • error
+
+    error   shift, and go to state 37
+    ID_TOK  shift, and go to state 14
+
+    declarator  go to state 38
+
+
+State 26
+
+   10 declaration: data_type error SEMICOLON_TOK •
+
+    $default  reduce using rule 10 (declaration)
+
+
+State 27
+
+   13 function_definition: data_type ID_TOK $@3 • LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
+
+    LPAREN_TOK  shift, and go to state 39
+
+
+State 28
+
+   15 function_definition: data_type ID_TOK $@4 • LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
+
+    LPAREN_TOK  shift, and go to state 40
+
+
+State 29
+
+   17 function_definition: data_type ID_TOK $@5 • LPAREN_TOK RPAREN_TOK function_body
+
+    LPAREN_TOK  shift, and go to state 41
+
+
+State 30
+
+   19 function_definition: data_type ID_TOK $@6 • LPAREN_TOK parameter_list RPAREN_TOK function_body
+
+    LPAREN_TOK  shift, and go to state 42
+
+
+State 31
+
+    8 declaration: data_type $@2 declarator_list • SEMICOLON_TOK
+   28 declarator_list: declarator_list • COMMA_TOK declarator
+   30                | declarator_list • error declarator
+   31                | declarator_list • COMMA_TOK error
+
+    error          shift, and go to state 23
+    SEMICOLON_TOK  shift, and go to state 43
+    COMMA_TOK      shift, and go to state 25
+
+
+State 32
+
+    9 declaration: data_type declarator_list error •
+   30 declarator_list: declarator_list error • declarator
+
+    ID_TOK  shift, and go to state 14
+
+    ID_TOK    [reduce using rule 9 (declaration)]
+    $default  reduce using rule 9 (declaration)
+
+    declarator  go to state 36
+
+
+State 33
+
+   36 declarator: ID_TOK LBRACKET_TOK error • RBRACKET_TOK
+
+    RBRACKET_TOK  shift, and go to state 44
+
+
+State 34
+
+   33 declarator: ID_TOK LBRACKET_TOK INTCONST_TOK • RBRACKET_TOK
+   35           | ID_TOK LBRACKET_TOK INTCONST_TOK • error
+
+    error         shift, and go to state 45
+    RBRACKET_TOK  shift, and go to state 46
+
+
+State 35
+
+   34 declarator: ID_TOK LBRACKET_TOK RBRACKET_TOK •
+
+    $default  reduce using rule 34 (declarator)
+
+
+State 36
+
+   30 declarator_list: declarator_list error declarator •
+
+    $default  reduce using rule 30 (declarator_list)
+
+
+State 37
+
+   31 declarator_list: declarator_list COMMA_TOK error •
+
+    $default  reduce using rule 31 (declarator_list)
+
+
+State 38
+
+   28 declarator_list: declarator_list COMMA_TOK declarator •
+
+    $default  reduce using rule 28 (declarator_list)
+
+
+State 39
+
+   13 function_definition: data_type ID_TOK $@3 LPAREN_TOK • RPAREN_TOK SEMICOLON_TOK
+
+    RPAREN_TOK  shift, and go to state 47
+
+
+State 40
+
+   15 function_definition: data_type ID_TOK $@4 LPAREN_TOK • parameter_list RPAREN_TOK SEMICOLON_TOK
+
+    INT_TOK    shift, and go to state 5
+    FLOAT_TOK  shift, and go to state 6
+    CHAR_TOK   shift, and go to state 7
+    VOID_TOK   shift, and go to state 8
+
+    data_type       go to state 48
+    parameter_list  go to state 49
+    parameter       go to state 50
+
+
+State 41
+
+   17 function_definition: data_type ID_TOK $@5 LPAREN_TOK • RPAREN_TOK function_body
+
+    RPAREN_TOK  shift, and go to state 51
+
+
+State 42
+
+   19 function_definition: data_type ID_TOK $@6 LPAREN_TOK • parameter_list RPAREN_TOK function_body
+
+    INT_TOK    shift, and go to state 5
+    FLOAT_TOK  shift, and go to state 6
+    CHAR_TOK   shift, and go to state 7
+    VOID_TOK   shift, and go to state 8
+
+    data_type       go to state 48
+    parameter_list  go to state 52
+    parameter       go to state 50
+
+
+State 43
+
+    8 declaration: data_type $@2 declarator_list SEMICOLON_TOK •
+
+    $default  reduce using rule 8 (declaration)
+
+
+State 44
+
+   36 declarator: ID_TOK LBRACKET_TOK error RBRACKET_TOK •
+
+    $default  reduce using rule 36 (declarator)
+
+
+State 45
+
+   35 declarator: ID_TOK LBRACKET_TOK INTCONST_TOK error •
+
+    $default  reduce using rule 35 (declarator)
+
+
+State 46
+
+   33 declarator: ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK •
+
+    $default  reduce using rule 33 (declarator)
+
+
+State 47
+
+   13 function_definition: data_type ID_TOK $@3 LPAREN_TOK RPAREN_TOK • SEMICOLON_TOK
+
+    SEMICOLON_TOK  shift, and go to state 53
+
+
+State 48
+
+   41 parameter: data_type • ID_TOK
+   42          | data_type • ID_TOK LBRACKET_TOK RBRACKET_TOK
+
+    ID_TOK  shift, and go to state 54
+
+
+State 49
+
+   15 function_definition: data_type ID_TOK $@4 LPAREN_TOK parameter_list • RPAREN_TOK SEMICOLON_TOK
+   37 parameter_list: parameter_list • COMMA_TOK parameter
+   39               | parameter_list • error parameter
+   40               | parameter_list • COMMA_TOK error
+
+    error       shift, and go to state 55
+    RPAREN_TOK  shift, and go to state 56
+    COMMA_TOK   shift, and go to state 57
+
+
+State 50
+
+   38 parameter_list: parameter •
+
+    $default  reduce using rule 38 (parameter_list)
+
+
+State 51
+
+   17 function_definition: data_type ID_TOK $@5 LPAREN_TOK RPAREN_TOK • function_body
+
+    LBRACE_TOK  shift, and go to state 58
+
+    function_body  go to state 59
+
+
+State 52
+
+   19 function_definition: data_type ID_TOK $@6 LPAREN_TOK parameter_list • RPAREN_TOK function_body
+   37 parameter_list: parameter_list • COMMA_TOK parameter
+   39               | parameter_list • error parameter
+   40               | parameter_list • COMMA_TOK error
+
+    error       shift, and go to state 55
+    RPAREN_TOK  shift, and go to state 60
+    COMMA_TOK   shift, and go to state 57
+
+
+State 53
+
+   13 function_definition: data_type ID_TOK $@3 LPAREN_TOK RPAREN_TOK SEMICOLON_TOK •
+
+    $default  reduce using rule 13 (function_definition)
+
+
+State 54
+
+   41 parameter: data_type ID_TOK •
+   42          | data_type ID_TOK • LBRACKET_TOK RBRACKET_TOK
+
+    LBRACKET_TOK  shift, and go to state 61
+
+    $default  reduce using rule 41 (parameter)
+
+
+State 55
+
+   39 parameter_list: parameter_list error • parameter
+
+    INT_TOK    shift, and go to state 5
+    FLOAT_TOK  shift, and go to state 6
+    CHAR_TOK   shift, and go to state 7
+    VOID_TOK   shift, and go to state 8
+
+    data_type  go to state 48
+    parameter  go to state 62
+
+
+State 56
+
+   15 function_definition: data_type ID_TOK $@4 LPAREN_TOK parameter_list RPAREN_TOK • SEMICOLON_TOK
+
+    SEMICOLON_TOK  shift, and go to state 63
+
+
+State 57
+
+   37 parameter_list: parameter_list COMMA_TOK • parameter
+   40               | parameter_list COMMA_TOK • error
+
+    error      shift, and go to state 64
+    INT_TOK    shift, and go to state 5
+    FLOAT_TOK  shift, and go to state 6
+    CHAR_TOK   shift, and go to state 7
+    VOID_TOK   shift, and go to state 8
+
+    data_type  go to state 48
+    parameter  go to state 65
+
+
+State 58
+
+   21 function_body: LBRACE_TOK • $@7 statement_list RBRACE_TOK
+   23              | LBRACE_TOK • $@8 RBRACE_TOK
+
+    RBRACE_TOK  reduce using rule 22 ($@8)
+    $default    reduce using rule 20 ($@7)
+
+    $@7  go to state 66
+    $@8  go to state 67
+
+
+State 59
+
+   17 function_definition: data_type ID_TOK $@5 LPAREN_TOK RPAREN_TOK function_body •
+
+    $default  reduce using rule 17 (function_definition)
+
+
+State 60
+
+   19 function_definition: data_type ID_TOK $@6 LPAREN_TOK parameter_list RPAREN_TOK • function_body
+
+    LBRACE_TOK  shift, and go to state 58
+
+    function_body  go to state 68
+
+
+State 61
+
+   42 parameter: data_type ID_TOK LBRACKET_TOK • RBRACKET_TOK
+
+    RBRACKET_TOK  shift, and go to state 69
+
+
+State 62
+
+   39 parameter_list: parameter_list error parameter •
+
+    $default  reduce using rule 39 (parameter_list)
+
+
+State 63
+
+   15 function_definition: data_type ID_TOK $@4 LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK •
+
+    $default  reduce using rule 15 (function_definition)
+
+
+State 64
+
+   40 parameter_list: parameter_list COMMA_TOK error •
+
+    $default  reduce using rule 40 (parameter_list)
+
+
+State 65
+
+   37 parameter_list: parameter_list COMMA_TOK parameter •
+
+    $default  reduce using rule 37 (parameter_list)
+
+
+State 66
+
+   21 function_body: LBRACE_TOK $@7 • statement_list RBRACE_TOK
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement_list         go to state 92
+    statement              go to state 93
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 67
+
+   23 function_body: LBRACE_TOK $@8 • RBRACE_TOK
+
+    RBRACE_TOK  shift, and go to state 116
+
+
+State 68
+
+   19 function_definition: data_type ID_TOK $@6 LPAREN_TOK parameter_list RPAREN_TOK function_body •
+
+    $default  reduce using rule 19 (function_definition)
+
+
+State 69
+
+   42 parameter: data_type ID_TOK LBRACKET_TOK RBRACKET_TOK •
+
+    $default  reduce using rule 42 (parameter)
+
+
+State 70
+
+   11 declaration: error • declarator_list SEMICOLON_TOK
+   55 statement: error • SEMICOLON_TOK
+
+    ID_TOK         shift, and go to state 14
+    SEMICOLON_TOK  shift, and go to state 117
+
+    declarator_list  go to state 15
+    declarator       go to state 16
+
+
+State 71
+
+   65 iteration_statement: WHILE_TOK • LPAREN_TOK expression RPAREN_TOK statement
+   69                    | WHILE_TOK • LPAREN_TOK expression error statement
+   70                    | WHILE_TOK • LPAREN_TOK error RPAREN_TOK statement
+
+    LPAREN_TOK  shift, and go to state 118
+
+
+State 72
+
+   66 iteration_statement: FOR_TOK • LPAREN_TOK expression_statement expression_statement RPAREN_TOK statement
+   67                    | FOR_TOK • LPAREN_TOK expression_statement expression_statement expression RPAREN_TOK statement
+
+    LPAREN_TOK  shift, and go to state 119
+
+
+State 73
+
+   68 iteration_statement: DO_TOK • statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 120
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 74
+
+   60 selection_statement: IF_TOK • LPAREN_TOK expression RPAREN_TOK statement
+   61                    | IF_TOK • LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement
+   62                    | IF_TOK • LPAREN_TOK expression error statement
+   63                    | IF_TOK • LPAREN_TOK error RPAREN_TOK statement
+   64                    | IF_TOK • error expression RPAREN_TOK statement
+
+    error       shift, and go to state 121
+    LPAREN_TOK  shift, and go to state 122
+
+
+State 75
+
+   71 jump_statement: RETURN_TOK • expression SEMICOLON_TOK
+   72               | RETURN_TOK • SEMICOLON_TOK
+   73               | RETURN_TOK • expression error
+   74               | RETURN_TOK • error SEMICOLON_TOK
+
+    error           shift, and go to state 123
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    SEMICOLON_TOK   shift, and go to state 124
+
+    expression           go to state 125
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 76
+
+  143 primary_expr: ID_TOK •
+
+    $default  reduce using rule 143 (primary_expr)
+
+
+State 77
+
+  146 primary_expr: STRING_TOK •
+
+    $default  reduce using rule 146 (primary_expr)
+
+
+State 78
+
+  144 primary_expr: INTCONST_TOK •
+
+    $default  reduce using rule 144 (primary_expr)
+
+
+State 79
+
+  145 primary_expr: FLOATCONST_TOK •
+
+    $default  reduce using rule 145 (primary_expr)
+
+
+State 80
+
+  125 unary_operator: ADD_TOK •
+
+    $default  reduce using rule 125 (unary_operator)
+
+
+State 81
+
+  126 unary_operator: SUB_TOK •
+
+    $default  reduce using rule 126 (unary_operator)
+
+
+State 82
+
+  127 unary_operator: NOT_TOK •
+
+    $default  reduce using rule 127 (unary_operator)
+
+
+State 83
+
+  128 unary_operator: BIT_NOT_TOK •
+
+    $default  reduce using rule 128 (unary_operator)
+
+
+State 84
+
+  122 unary_expr: INC_TOK • unary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    unary_expr      go to state 126
+    unary_operator  go to state 113
+    postfix_expr    go to state 114
+    primary_expr    go to state 115
+
+
+State 85
+
+  123 unary_expr: DEC_TOK • unary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    unary_expr      go to state 127
+    unary_operator  go to state 113
+    postfix_expr    go to state 114
+    primary_expr    go to state 115
+
+
+State 86
+
+  147 primary_expr: LPAREN_TOK • expression RPAREN_TOK
+  148             | LPAREN_TOK • expression error
+  149             | LPAREN_TOK • error RPAREN_TOK
+
+    error           shift, and go to state 128
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 129
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 87
+
+   43 compound_statement: LBRACE_TOK • statement_list RBRACE_TOK
+   44                   | LBRACE_TOK • RBRACE_TOK
+   45                   | LBRACE_TOK • statement_list error
+   46                   | LBRACE_TOK • error RBRACE_TOK
+
+    error           shift, and go to state 130
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    RBRACE_TOK      shift, and go to state 131
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement_list         go to state 132
+    statement              go to state 93
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 88
+
+   58 expression_statement: SEMICOLON_TOK •
+
+    $default  reduce using rule 58 (expression_statement)
+
+
+State 89
+
+   56 declaration_statement: declaration •
+
+    $default  reduce using rule 56 (declaration_statement)
+
+
+State 90
+
+    8 declaration: data_type • $@2 declarator_list SEMICOLON_TOK
+    9            | data_type • declarator_list error
+   10            | data_type • error SEMICOLON_TOK
+
+    error   shift, and go to state 18
+    ID_TOK  shift, and go to state 14
+
+    ID_TOK  [reduce using rule 7 ($@2)]
+
+    $@2              go to state 20
+    declarator_list  go to state 21
+    declarator       go to state 16
+
+
+State 91
+
+   51 statement: compound_statement •
+
+    $default  reduce using rule 51 (statement)
+
+
+State 92
+
+   21 function_body: LBRACE_TOK $@7 statement_list • RBRACE_TOK
+   47 statement_list: statement_list • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    RBRACE_TOK      shift, and go to state 133
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 134
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 93
+
+   48 statement_list: statement •
+
+    $default  reduce using rule 48 (statement_list)
+
+
+State 94
+
+   49 statement: declaration_statement •
+
+    $default  reduce using rule 49 (statement)
+
+
+State 95
+
+   50 statement: expression_statement •
+
+    $default  reduce using rule 50 (statement)
+
+
+State 96
+
+   52 statement: selection_statement •
+
+    $default  reduce using rule 52 (statement)
+
+
+State 97
+
+   53 statement: iteration_statement •
+
+    $default  reduce using rule 53 (statement)
+
+
+State 98
+
+   54 statement: jump_statement •
+
+    $default  reduce using rule 54 (statement)
+
+
+State 99
+
+   57 expression_statement: expression • SEMICOLON_TOK
+   59                     | expression • error
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error          shift, and go to state 135
+    SEMICOLON_TOK  shift, and go to state 136
+    COMMA_TOK      shift, and go to state 137
+
+
+State 100
+
+   75 expression: assignment_expr •
+
+    $default  reduce using rule 75 (expression)
+
+
+State 101
+
+   79 assignment_expr: ternary_expr •
+
+    $default  reduce using rule 79 (assignment_expr)
+
+
+State 102
+
+   88 ternary_expr: logical_or_expr •
+   89             | logical_or_expr • TERNARY_TOK expression COLON_TOK ternary_expr
+   90             | logical_or_expr • TERNARY_TOK expression error ternary_expr
+   91             | logical_or_expr • TERNARY_TOK error COLON_TOK ternary_expr
+   92             | logical_or_expr • error expression COLON_TOK ternary_expr
+   94 logical_or_expr: logical_or_expr • OR_TOK logical_and_expr
+
+    error        shift, and go to state 138
+    OR_TOK       shift, and go to state 139
+    TERNARY_TOK  shift, and go to state 140
+
+    error          [reduce using rule 88 (ternary_expr)]
+    COLON_TOK      reduce using rule 88 (ternary_expr)
+    RPAREN_TOK     reduce using rule 88 (ternary_expr)
+    RBRACKET_TOK   reduce using rule 88 (ternary_expr)
+    SEMICOLON_TOK  reduce using rule 88 (ternary_expr)
+    COMMA_TOK      reduce using rule 88 (ternary_expr)
+
+
+State 103
+
+   93 logical_or_expr: logical_and_expr •
+   96 logical_and_expr: logical_and_expr • AND_TOK bit_or_expr
+
+    AND_TOK  shift, and go to state 141
+
+    $default  reduce using rule 93 (logical_or_expr)
+
+
+State 104
+
+   95 logical_and_expr: bit_or_expr •
+   98 bit_or_expr: bit_or_expr • BIT_OR_TOK bit_xor_expr
+
+    BIT_OR_TOK  shift, and go to state 142
+
+    $default  reduce using rule 95 (logical_and_expr)
+
+
+State 105
+
+   97 bit_or_expr: bit_xor_expr •
+  100 bit_xor_expr: bit_xor_expr • BIT_XOR_TOK bit_and_expr
+
+    BIT_XOR_TOK  shift, and go to state 143
+
+    $default  reduce using rule 97 (bit_or_expr)
+
+
+State 106
+
+   99 bit_xor_expr: bit_and_expr •
+  102 bit_and_expr: bit_and_expr • BIT_AND_TOK equality_expr
+
+    BIT_AND_TOK  shift, and go to state 144
+
+    $default  reduce using rule 99 (bit_xor_expr)
+
+
+State 107
+
+  101 bit_and_expr: equality_expr •
+  104 equality_expr: equality_expr • EQ_TOK relational_expr
+  105              | equality_expr • NEQ_TOK relational_expr
+
+    EQ_TOK   shift, and go to state 145
+    NEQ_TOK  shift, and go to state 146
+
+    $default  reduce using rule 101 (bit_and_expr)
+
+
+State 108
+
+  103 equality_expr: relational_expr •
+  107 relational_expr: relational_expr • LT_TOK shift_expr
+  108                | relational_expr • GT_TOK shift_expr
+  109                | relational_expr • LE_TOK shift_expr
+  110                | relational_expr • GE_TOK shift_expr
+
+    LT_TOK  shift, and go to state 147
+    GT_TOK  shift, and go to state 148
+    LE_TOK  shift, and go to state 149
+    GE_TOK  shift, and go to state 150
+
+    $default  reduce using rule 103 (equality_expr)
+
+
+State 109
+
+  106 relational_expr: shift_expr •
+  112 shift_expr: shift_expr • BIT_LSHIFT_TOK additive_expr
+  113           | shift_expr • BIT_RSHIFT_TOK additive_expr
+
+    BIT_LSHIFT_TOK  shift, and go to state 151
+    BIT_RSHIFT_TOK  shift, and go to state 152
+
+    $default  reduce using rule 106 (relational_expr)
+
+
+State 110
+
+  111 shift_expr: additive_expr •
+  115 additive_expr: additive_expr • ADD_TOK multiplicative_expr
+  116              | additive_expr • SUB_TOK multiplicative_expr
+
+    ADD_TOK  shift, and go to state 153
+    SUB_TOK  shift, and go to state 154
+
+    $default  reduce using rule 111 (shift_expr)
+
+
+State 111
+
+  114 additive_expr: multiplicative_expr •
+  118 multiplicative_expr: multiplicative_expr • MUL_TOK unary_expr
+  119                    | multiplicative_expr • DIV_TOK unary_expr
+  120                    | multiplicative_expr • MOD_TOK unary_expr
+
+    MUL_TOK  shift, and go to state 155
+    DIV_TOK  shift, and go to state 156
+    MOD_TOK  shift, and go to state 157
+
+    $default  reduce using rule 114 (additive_expr)
+
+
+State 112
+
+   80 assignment_expr: unary_expr • ASSIGN_TOK assignment_expr
+   81                | unary_expr • ADD_ASSIGN_TOK assignment_expr
+   82                | unary_expr • SUB_ASSIGN_TOK assignment_expr
+   83                | unary_expr • MUL_ASSIGN_TOK assignment_expr
+   84                | unary_expr • DIV_ASSIGN_TOK assignment_expr
+   85                | unary_expr • MOD_ASSIGN_TOK assignment_expr
+   86                | unary_expr • error assignment_expr
+   87                | unary_expr • ASSIGN_TOK error
+  117 multiplicative_expr: unary_expr •
+
+    error           shift, and go to state 158
+    ASSIGN_TOK      shift, and go to state 159
+    ADD_ASSIGN_TOK  shift, and go to state 160
+    SUB_ASSIGN_TOK  shift, and go to state 161
+    MUL_ASSIGN_TOK  shift, and go to state 162
+    DIV_ASSIGN_TOK  shift, and go to state 163
+    MOD_ASSIGN_TOK  shift, and go to state 164
+
+    error           [reduce using rule 117 (multiplicative_expr)]
+    ADD_TOK         reduce using rule 117 (multiplicative_expr)
+    SUB_TOK         reduce using rule 117 (multiplicative_expr)
+    MUL_TOK         reduce using rule 117 (multiplicative_expr)
+    DIV_TOK         reduce using rule 117 (multiplicative_expr)
+    MOD_TOK         reduce using rule 117 (multiplicative_expr)
+    LT_TOK          reduce using rule 117 (multiplicative_expr)
+    GT_TOK          reduce using rule 117 (multiplicative_expr)
+    LE_TOK          reduce using rule 117 (multiplicative_expr)
+    GE_TOK          reduce using rule 117 (multiplicative_expr)
+    EQ_TOK          reduce using rule 117 (multiplicative_expr)
+    NEQ_TOK         reduce using rule 117 (multiplicative_expr)
+    AND_TOK         reduce using rule 117 (multiplicative_expr)
+    OR_TOK          reduce using rule 117 (multiplicative_expr)
+    BIT_AND_TOK     reduce using rule 117 (multiplicative_expr)
+    BIT_OR_TOK      reduce using rule 117 (multiplicative_expr)
+    BIT_XOR_TOK     reduce using rule 117 (multiplicative_expr)
+    BIT_LSHIFT_TOK  reduce using rule 117 (multiplicative_expr)
+    BIT_RSHIFT_TOK  reduce using rule 117 (multiplicative_expr)
+    TERNARY_TOK     reduce using rule 117 (multiplicative_expr)
+    COLON_TOK       reduce using rule 117 (multiplicative_expr)
+    RPAREN_TOK      reduce using rule 117 (multiplicative_expr)
+    RBRACKET_TOK    reduce using rule 117 (multiplicative_expr)
+    SEMICOLON_TOK   reduce using rule 117 (multiplicative_expr)
+    COMMA_TOK       reduce using rule 117 (multiplicative_expr)
+
+
+State 113
+
+  124 unary_expr: unary_operator • unary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    unary_expr      go to state 165
+    unary_operator  go to state 113
+    postfix_expr    go to state 114
+    primary_expr    go to state 115
+
+
+State 114
+
+  121 unary_expr: postfix_expr •
+  130 postfix_expr: postfix_expr • LBRACKET_TOK expression RBRACKET_TOK
+  131             | postfix_expr • LBRACKET_TOK expression error
+  132             | postfix_expr • LBRACKET_TOK error RBRACKET_TOK
+  133             | postfix_expr • LPAREN_TOK RPAREN_TOK
+  134             | postfix_expr • LPAREN_TOK argument_list RPAREN_TOK
+  135             | postfix_expr • LPAREN_TOK argument_list error
+  136             | postfix_expr • LPAREN_TOK error RPAREN_TOK
+  137             | postfix_expr • INC_TOK
+  138             | postfix_expr • DEC_TOK
+
+    INC_TOK       shift, and go to state 166
+    DEC_TOK       shift, and go to state 167
+    LPAREN_TOK    shift, and go to state 168
+    LBRACKET_TOK  shift, and go to state 169
+
+    $default  reduce using rule 121 (unary_expr)
+
+
+State 115
+
+  129 postfix_expr: primary_expr •
+
+    $default  reduce using rule 129 (postfix_expr)
+
+
+State 116
+
+   23 function_body: LBRACE_TOK $@8 RBRACE_TOK •
+
+    $default  reduce using rule 23 (function_body)
+
+
+State 117
+
+   55 statement: error SEMICOLON_TOK •
+
+    $default  reduce using rule 55 (statement)
+
+
+State 118
+
+   65 iteration_statement: WHILE_TOK LPAREN_TOK • expression RPAREN_TOK statement
+   69                    | WHILE_TOK LPAREN_TOK • expression error statement
+   70                    | WHILE_TOK LPAREN_TOK • error RPAREN_TOK statement
+
+    error           shift, and go to state 170
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 171
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 119
+
+   66 iteration_statement: FOR_TOK LPAREN_TOK • expression_statement expression_statement RPAREN_TOK statement
+   67                    | FOR_TOK LPAREN_TOK • expression_statement expression_statement expression RPAREN_TOK statement
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    SEMICOLON_TOK   shift, and go to state 88
+
+    expression_statement  go to state 172
+    expression            go to state 99
+    assignment_expr       go to state 100
+    ternary_expr          go to state 101
+    logical_or_expr       go to state 102
+    logical_and_expr      go to state 103
+    bit_or_expr           go to state 104
+    bit_xor_expr          go to state 105
+    bit_and_expr          go to state 106
+    equality_expr         go to state 107
+    relational_expr       go to state 108
+    shift_expr            go to state 109
+    additive_expr         go to state 110
+    multiplicative_expr   go to state 111
+    unary_expr            go to state 112
+    unary_operator        go to state 113
+    postfix_expr          go to state 114
+    primary_expr          go to state 115
+
+
+State 120
+
+   68 iteration_statement: DO_TOK statement • WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
+
+    WHILE_TOK  shift, and go to state 173
+
+
+State 121
+
+   64 selection_statement: IF_TOK error • expression RPAREN_TOK statement
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 174
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 122
+
+   60 selection_statement: IF_TOK LPAREN_TOK • expression RPAREN_TOK statement
+   61                    | IF_TOK LPAREN_TOK • expression RPAREN_TOK statement ELSE_TOK statement
+   62                    | IF_TOK LPAREN_TOK • expression error statement
+   63                    | IF_TOK LPAREN_TOK • error RPAREN_TOK statement
+
+    error           shift, and go to state 175
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 176
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 123
+
+   74 jump_statement: RETURN_TOK error • SEMICOLON_TOK
+
+    SEMICOLON_TOK  shift, and go to state 177
+
+
+State 124
+
+   72 jump_statement: RETURN_TOK SEMICOLON_TOK •
+
+    $default  reduce using rule 72 (jump_statement)
+
+
+State 125
+
+   71 jump_statement: RETURN_TOK expression • SEMICOLON_TOK
+   73               | RETURN_TOK expression • error
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error          shift, and go to state 178
+    SEMICOLON_TOK  shift, and go to state 179
+    COMMA_TOK      shift, and go to state 137
+
+
+State 126
+
+  122 unary_expr: INC_TOK unary_expr •
+
+    $default  reduce using rule 122 (unary_expr)
+
+
+State 127
+
+  123 unary_expr: DEC_TOK unary_expr •
+
+    $default  reduce using rule 123 (unary_expr)
+
+
+State 128
+
+  149 primary_expr: LPAREN_TOK error • RPAREN_TOK
+
+    RPAREN_TOK  shift, and go to state 180
+
+
+State 129
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+  147 primary_expr: LPAREN_TOK expression • RPAREN_TOK
+  148             | LPAREN_TOK expression • error
+
+    error       shift, and go to state 181
+    RPAREN_TOK  shift, and go to state 182
+    COMMA_TOK   shift, and go to state 137
+
+
+State 130
+
+   11 declaration: error • declarator_list SEMICOLON_TOK
+   46 compound_statement: LBRACE_TOK error • RBRACE_TOK
+   55 statement: error • SEMICOLON_TOK
+
+    ID_TOK         shift, and go to state 14
+    RBRACE_TOK     shift, and go to state 183
+    SEMICOLON_TOK  shift, and go to state 117
+
+    declarator_list  go to state 15
+    declarator       go to state 16
+
+
+State 131
+
+   44 compound_statement: LBRACE_TOK RBRACE_TOK •
+
+    $default  reduce using rule 44 (compound_statement)
+
+
+State 132
+
+   43 compound_statement: LBRACE_TOK statement_list • RBRACE_TOK
+   45                   | LBRACE_TOK statement_list • error
+   47 statement_list: statement_list • statement
+
+    error           shift, and go to state 184
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    RBRACE_TOK      shift, and go to state 185
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 134
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 133
+
+   21 function_body: LBRACE_TOK $@7 statement_list RBRACE_TOK •
+
+    $default  reduce using rule 21 (function_body)
+
+
+State 134
+
+   47 statement_list: statement_list statement •
+
+    $default  reduce using rule 47 (statement_list)
+
+
+State 135
+
+   59 expression_statement: expression error •
+   77 expression: expression error • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ID_TOK          [reduce using rule 59 (expression_statement)]
+    STRING_TOK      [reduce using rule 59 (expression_statement)]
+    INTCONST_TOK    [reduce using rule 59 (expression_statement)]
+    FLOATCONST_TOK  [reduce using rule 59 (expression_statement)]
+    ADD_TOK         [reduce using rule 59 (expression_statement)]
+    SUB_TOK         [reduce using rule 59 (expression_statement)]
+    NOT_TOK         [reduce using rule 59 (expression_statement)]
+    BIT_NOT_TOK     [reduce using rule 59 (expression_statement)]
+    INC_TOK         [reduce using rule 59 (expression_statement)]
+    DEC_TOK         [reduce using rule 59 (expression_statement)]
+    LPAREN_TOK      [reduce using rule 59 (expression_statement)]
+    $default        reduce using rule 59 (expression_statement)
+
+    assignment_expr      go to state 186
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 136
+
+   57 expression_statement: expression SEMICOLON_TOK •
+
+    $default  reduce using rule 57 (expression_statement)
+
+
+State 137
+
+   76 expression: expression COMMA_TOK • assignment_expr
+   78           | expression COMMA_TOK • error
+
+    error           shift, and go to state 187
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 188
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 138
+
+   92 ternary_expr: logical_or_expr error • expression COLON_TOK ternary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 189
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 139
+
+   94 logical_or_expr: logical_or_expr OR_TOK • logical_and_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    logical_and_expr     go to state 190
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 140
+
+   89 ternary_expr: logical_or_expr TERNARY_TOK • expression COLON_TOK ternary_expr
+   90             | logical_or_expr TERNARY_TOK • expression error ternary_expr
+   91             | logical_or_expr TERNARY_TOK • error COLON_TOK ternary_expr
+
+    error           shift, and go to state 192
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 193
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 141
+
+   96 logical_and_expr: logical_and_expr AND_TOK • bit_or_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    bit_or_expr          go to state 194
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 142
+
+   98 bit_or_expr: bit_or_expr BIT_OR_TOK • bit_xor_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    bit_xor_expr         go to state 195
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 143
+
+  100 bit_xor_expr: bit_xor_expr BIT_XOR_TOK • bit_and_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    bit_and_expr         go to state 196
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 144
+
+  102 bit_and_expr: bit_and_expr BIT_AND_TOK • equality_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    equality_expr        go to state 197
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 145
+
+  104 equality_expr: equality_expr EQ_TOK • relational_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    relational_expr      go to state 198
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 146
+
+  105 equality_expr: equality_expr NEQ_TOK • relational_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    relational_expr      go to state 199
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 147
+
+  107 relational_expr: relational_expr LT_TOK • shift_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    shift_expr           go to state 200
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 148
+
+  108 relational_expr: relational_expr GT_TOK • shift_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    shift_expr           go to state 201
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 149
+
+  109 relational_expr: relational_expr LE_TOK • shift_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    shift_expr           go to state 202
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 150
+
+  110 relational_expr: relational_expr GE_TOK • shift_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    shift_expr           go to state 203
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 151
+
+  112 shift_expr: shift_expr BIT_LSHIFT_TOK • additive_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    additive_expr        go to state 204
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 152
+
+  113 shift_expr: shift_expr BIT_RSHIFT_TOK • additive_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    additive_expr        go to state 205
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 153
+
+  115 additive_expr: additive_expr ADD_TOK • multiplicative_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    multiplicative_expr  go to state 206
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 154
+
+  116 additive_expr: additive_expr SUB_TOK • multiplicative_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    multiplicative_expr  go to state 207
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 155
+
+  118 multiplicative_expr: multiplicative_expr MUL_TOK • unary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    unary_expr      go to state 208
+    unary_operator  go to state 113
+    postfix_expr    go to state 114
+    primary_expr    go to state 115
+
+
+State 156
+
+  119 multiplicative_expr: multiplicative_expr DIV_TOK • unary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    unary_expr      go to state 209
+    unary_operator  go to state 113
+    postfix_expr    go to state 114
+    primary_expr    go to state 115
+
+
+State 157
+
+  120 multiplicative_expr: multiplicative_expr MOD_TOK • unary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    unary_expr      go to state 210
+    unary_operator  go to state 113
+    postfix_expr    go to state 114
+    primary_expr    go to state 115
+
+
+State 158
+
+   86 assignment_expr: unary_expr error • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 211
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 159
+
+   80 assignment_expr: unary_expr ASSIGN_TOK • assignment_expr
+   87                | unary_expr ASSIGN_TOK • error
+
+    error           shift, and go to state 212
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 213
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 160
+
+   81 assignment_expr: unary_expr ADD_ASSIGN_TOK • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 214
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 161
+
+   82 assignment_expr: unary_expr SUB_ASSIGN_TOK • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 215
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 162
+
+   83 assignment_expr: unary_expr MUL_ASSIGN_TOK • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 216
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 163
+
+   84 assignment_expr: unary_expr DIV_ASSIGN_TOK • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 217
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 164
+
+   85 assignment_expr: unary_expr MOD_ASSIGN_TOK • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 218
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 165
+
+  124 unary_expr: unary_operator unary_expr •
+
+    $default  reduce using rule 124 (unary_expr)
+
+
+State 166
+
+  137 postfix_expr: postfix_expr INC_TOK •
+
+    $default  reduce using rule 137 (postfix_expr)
+
+
+State 167
+
+  138 postfix_expr: postfix_expr DEC_TOK •
+
+    $default  reduce using rule 138 (postfix_expr)
+
+
+State 168
+
+  133 postfix_expr: postfix_expr LPAREN_TOK • RPAREN_TOK
+  134             | postfix_expr LPAREN_TOK • argument_list RPAREN_TOK
+  135             | postfix_expr LPAREN_TOK • argument_list error
+  136             | postfix_expr LPAREN_TOK • error RPAREN_TOK
+
+    error           shift, and go to state 219
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    RPAREN_TOK      shift, and go to state 220
+
+    expression           go to state 221
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    argument_list        go to state 222
+    primary_expr         go to state 115
+
+
+State 169
+
+  130 postfix_expr: postfix_expr LBRACKET_TOK • expression RBRACKET_TOK
+  131             | postfix_expr LBRACKET_TOK • expression error
+  132             | postfix_expr LBRACKET_TOK • error RBRACKET_TOK
+
+    error           shift, and go to state 223
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 224
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 170
+
+   70 iteration_statement: WHILE_TOK LPAREN_TOK error • RPAREN_TOK statement
+
+    RPAREN_TOK  shift, and go to state 225
+
+
+State 171
+
+   65 iteration_statement: WHILE_TOK LPAREN_TOK expression • RPAREN_TOK statement
+   69                    | WHILE_TOK LPAREN_TOK expression • error statement
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error       shift, and go to state 226
+    RPAREN_TOK  shift, and go to state 227
+    COMMA_TOK   shift, and go to state 137
+
+
+State 172
+
+   66 iteration_statement: FOR_TOK LPAREN_TOK expression_statement • expression_statement RPAREN_TOK statement
+   67                    | FOR_TOK LPAREN_TOK expression_statement • expression_statement expression RPAREN_TOK statement
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    SEMICOLON_TOK   shift, and go to state 88
+
+    expression_statement  go to state 228
+    expression            go to state 99
+    assignment_expr       go to state 100
+    ternary_expr          go to state 101
+    logical_or_expr       go to state 102
+    logical_and_expr      go to state 103
+    bit_or_expr           go to state 104
+    bit_xor_expr          go to state 105
+    bit_and_expr          go to state 106
+    equality_expr         go to state 107
+    relational_expr       go to state 108
+    shift_expr            go to state 109
+    additive_expr         go to state 110
+    multiplicative_expr   go to state 111
+    unary_expr            go to state 112
+    unary_operator        go to state 113
+    postfix_expr          go to state 114
+    primary_expr          go to state 115
+
+
+State 173
+
+   68 iteration_statement: DO_TOK statement WHILE_TOK • LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK
+
+    LPAREN_TOK  shift, and go to state 229
+
+
+State 174
+
+   64 selection_statement: IF_TOK error expression • RPAREN_TOK statement
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error       shift, and go to state 230
+    RPAREN_TOK  shift, and go to state 231
+    COMMA_TOK   shift, and go to state 137
+
+
+State 175
+
+   63 selection_statement: IF_TOK LPAREN_TOK error • RPAREN_TOK statement
+
+    RPAREN_TOK  shift, and go to state 232
+
+
+State 176
+
+   60 selection_statement: IF_TOK LPAREN_TOK expression • RPAREN_TOK statement
+   61                    | IF_TOK LPAREN_TOK expression • RPAREN_TOK statement ELSE_TOK statement
+   62                    | IF_TOK LPAREN_TOK expression • error statement
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error       shift, and go to state 233
+    RPAREN_TOK  shift, and go to state 234
+    COMMA_TOK   shift, and go to state 137
+
+
+State 177
+
+   74 jump_statement: RETURN_TOK error SEMICOLON_TOK •
+
+    $default  reduce using rule 74 (jump_statement)
+
+
+State 178
+
+   73 jump_statement: RETURN_TOK expression error •
+   77 expression: expression error • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ID_TOK          [reduce using rule 73 (jump_statement)]
+    STRING_TOK      [reduce using rule 73 (jump_statement)]
+    INTCONST_TOK    [reduce using rule 73 (jump_statement)]
+    FLOATCONST_TOK  [reduce using rule 73 (jump_statement)]
+    ADD_TOK         [reduce using rule 73 (jump_statement)]
+    SUB_TOK         [reduce using rule 73 (jump_statement)]
+    NOT_TOK         [reduce using rule 73 (jump_statement)]
+    BIT_NOT_TOK     [reduce using rule 73 (jump_statement)]
+    INC_TOK         [reduce using rule 73 (jump_statement)]
+    DEC_TOK         [reduce using rule 73 (jump_statement)]
+    LPAREN_TOK      [reduce using rule 73 (jump_statement)]
+    $default        reduce using rule 73 (jump_statement)
+
+    assignment_expr      go to state 186
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 179
+
+   71 jump_statement: RETURN_TOK expression SEMICOLON_TOK •
+
+    $default  reduce using rule 71 (jump_statement)
+
+
+State 180
+
+  149 primary_expr: LPAREN_TOK error RPAREN_TOK •
+
+    $default  reduce using rule 149 (primary_expr)
+
+
+State 181
+
+   77 expression: expression error • assignment_expr
+  148 primary_expr: LPAREN_TOK expression error •
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ADD_TOK     [reduce using rule 148 (primary_expr)]
+    SUB_TOK     [reduce using rule 148 (primary_expr)]
+    INC_TOK     [reduce using rule 148 (primary_expr)]
+    DEC_TOK     [reduce using rule 148 (primary_expr)]
+    LPAREN_TOK  [reduce using rule 148 (primary_expr)]
+    $default    reduce using rule 148 (primary_expr)
+
+    assignment_expr      go to state 186
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 182
+
+  147 primary_expr: LPAREN_TOK expression RPAREN_TOK •
+
+    $default  reduce using rule 147 (primary_expr)
+
+
+State 183
+
+   46 compound_statement: LBRACE_TOK error RBRACE_TOK •
+
+    $default  reduce using rule 46 (compound_statement)
+
+
+State 184
+
+   11 declaration: error • declarator_list SEMICOLON_TOK
+   45 compound_statement: LBRACE_TOK statement_list error •
+   55 statement: error • SEMICOLON_TOK
+
+    ID_TOK         shift, and go to state 14
+    SEMICOLON_TOK  shift, and go to state 117
+
+    ID_TOK         [reduce using rule 45 (compound_statement)]
+    SEMICOLON_TOK  [reduce using rule 45 (compound_statement)]
+    $default       reduce using rule 45 (compound_statement)
+
+    declarator_list  go to state 15
+    declarator       go to state 16
+
+
+State 185
+
+   43 compound_statement: LBRACE_TOK statement_list RBRACE_TOK •
+
+    $default  reduce using rule 43 (compound_statement)
+
+
+State 186
+
+   77 expression: expression error assignment_expr •
+
+    $default  reduce using rule 77 (expression)
+
+
+State 187
+
+   78 expression: expression COMMA_TOK error •
+
+    $default  reduce using rule 78 (expression)
+
+
+State 188
+
+   76 expression: expression COMMA_TOK assignment_expr •
+
+    $default  reduce using rule 76 (expression)
+
+
+State 189
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+   92 ternary_expr: logical_or_expr error expression • COLON_TOK ternary_expr
+
+    error      shift, and go to state 230
+    COLON_TOK  shift, and go to state 235
+    COMMA_TOK  shift, and go to state 137
+
+
+State 190
+
+   94 logical_or_expr: logical_or_expr OR_TOK logical_and_expr •
+   96 logical_and_expr: logical_and_expr • AND_TOK bit_or_expr
+
+    AND_TOK  shift, and go to state 141
+
+    $default  reduce using rule 94 (logical_or_expr)
+
+
+State 191
+
+  117 multiplicative_expr: unary_expr •
+
+    $default  reduce using rule 117 (multiplicative_expr)
+
+
+State 192
+
+   91 ternary_expr: logical_or_expr TERNARY_TOK error • COLON_TOK ternary_expr
+
+    COLON_TOK  shift, and go to state 236
+
+
+State 193
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+   89 ternary_expr: logical_or_expr TERNARY_TOK expression • COLON_TOK ternary_expr
+   90             | logical_or_expr TERNARY_TOK expression • error ternary_expr
+
+    error      shift, and go to state 237
+    COLON_TOK  shift, and go to state 238
+    COMMA_TOK  shift, and go to state 137
+
+
+State 194
+
+   96 logical_and_expr: logical_and_expr AND_TOK bit_or_expr •
+   98 bit_or_expr: bit_or_expr • BIT_OR_TOK bit_xor_expr
+
+    BIT_OR_TOK  shift, and go to state 142
+
+    $default  reduce using rule 96 (logical_and_expr)
+
+
+State 195
+
+   98 bit_or_expr: bit_or_expr BIT_OR_TOK bit_xor_expr •
+  100 bit_xor_expr: bit_xor_expr • BIT_XOR_TOK bit_and_expr
+
+    BIT_XOR_TOK  shift, and go to state 143
+
+    $default  reduce using rule 98 (bit_or_expr)
+
+
+State 196
+
+  100 bit_xor_expr: bit_xor_expr BIT_XOR_TOK bit_and_expr •
+  102 bit_and_expr: bit_and_expr • BIT_AND_TOK equality_expr
+
+    BIT_AND_TOK  shift, and go to state 144
+
+    $default  reduce using rule 100 (bit_xor_expr)
+
+
+State 197
+
+  102 bit_and_expr: bit_and_expr BIT_AND_TOK equality_expr •
+  104 equality_expr: equality_expr • EQ_TOK relational_expr
+  105              | equality_expr • NEQ_TOK relational_expr
+
+    EQ_TOK   shift, and go to state 145
+    NEQ_TOK  shift, and go to state 146
+
+    $default  reduce using rule 102 (bit_and_expr)
+
+
+State 198
+
+  104 equality_expr: equality_expr EQ_TOK relational_expr •
+  107 relational_expr: relational_expr • LT_TOK shift_expr
+  108                | relational_expr • GT_TOK shift_expr
+  109                | relational_expr • LE_TOK shift_expr
+  110                | relational_expr • GE_TOK shift_expr
+
+    LT_TOK  shift, and go to state 147
+    GT_TOK  shift, and go to state 148
+    LE_TOK  shift, and go to state 149
+    GE_TOK  shift, and go to state 150
+
+    $default  reduce using rule 104 (equality_expr)
+
+
+State 199
+
+  105 equality_expr: equality_expr NEQ_TOK relational_expr •
+  107 relational_expr: relational_expr • LT_TOK shift_expr
+  108                | relational_expr • GT_TOK shift_expr
+  109                | relational_expr • LE_TOK shift_expr
+  110                | relational_expr • GE_TOK shift_expr
+
+    LT_TOK  shift, and go to state 147
+    GT_TOK  shift, and go to state 148
+    LE_TOK  shift, and go to state 149
+    GE_TOK  shift, and go to state 150
+
+    $default  reduce using rule 105 (equality_expr)
+
+
+State 200
+
+  107 relational_expr: relational_expr LT_TOK shift_expr •
+  112 shift_expr: shift_expr • BIT_LSHIFT_TOK additive_expr
+  113           | shift_expr • BIT_RSHIFT_TOK additive_expr
+
+    BIT_LSHIFT_TOK  shift, and go to state 151
+    BIT_RSHIFT_TOK  shift, and go to state 152
+
+    $default  reduce using rule 107 (relational_expr)
+
+
+State 201
+
+  108 relational_expr: relational_expr GT_TOK shift_expr •
+  112 shift_expr: shift_expr • BIT_LSHIFT_TOK additive_expr
+  113           | shift_expr • BIT_RSHIFT_TOK additive_expr
+
+    BIT_LSHIFT_TOK  shift, and go to state 151
+    BIT_RSHIFT_TOK  shift, and go to state 152
+
+    $default  reduce using rule 108 (relational_expr)
+
+
+State 202
+
+  109 relational_expr: relational_expr LE_TOK shift_expr •
+  112 shift_expr: shift_expr • BIT_LSHIFT_TOK additive_expr
+  113           | shift_expr • BIT_RSHIFT_TOK additive_expr
+
+    BIT_LSHIFT_TOK  shift, and go to state 151
+    BIT_RSHIFT_TOK  shift, and go to state 152
+
+    $default  reduce using rule 109 (relational_expr)
+
+
+State 203
+
+  110 relational_expr: relational_expr GE_TOK shift_expr •
+  112 shift_expr: shift_expr • BIT_LSHIFT_TOK additive_expr
+  113           | shift_expr • BIT_RSHIFT_TOK additive_expr
+
+    BIT_LSHIFT_TOK  shift, and go to state 151
+    BIT_RSHIFT_TOK  shift, and go to state 152
+
+    $default  reduce using rule 110 (relational_expr)
+
+
+State 204
+
+  112 shift_expr: shift_expr BIT_LSHIFT_TOK additive_expr •
+  115 additive_expr: additive_expr • ADD_TOK multiplicative_expr
+  116              | additive_expr • SUB_TOK multiplicative_expr
+
+    ADD_TOK  shift, and go to state 153
+    SUB_TOK  shift, and go to state 154
+
+    $default  reduce using rule 112 (shift_expr)
+
+
+State 205
+
+  113 shift_expr: shift_expr BIT_RSHIFT_TOK additive_expr •
+  115 additive_expr: additive_expr • ADD_TOK multiplicative_expr
+  116              | additive_expr • SUB_TOK multiplicative_expr
+
+    ADD_TOK  shift, and go to state 153
+    SUB_TOK  shift, and go to state 154
+
+    $default  reduce using rule 113 (shift_expr)
+
+
+State 206
+
+  115 additive_expr: additive_expr ADD_TOK multiplicative_expr •
+  118 multiplicative_expr: multiplicative_expr • MUL_TOK unary_expr
+  119                    | multiplicative_expr • DIV_TOK unary_expr
+  120                    | multiplicative_expr • MOD_TOK unary_expr
+
+    MUL_TOK  shift, and go to state 155
+    DIV_TOK  shift, and go to state 156
+    MOD_TOK  shift, and go to state 157
+
+    $default  reduce using rule 115 (additive_expr)
+
+
+State 207
+
+  116 additive_expr: additive_expr SUB_TOK multiplicative_expr •
+  118 multiplicative_expr: multiplicative_expr • MUL_TOK unary_expr
+  119                    | multiplicative_expr • DIV_TOK unary_expr
+  120                    | multiplicative_expr • MOD_TOK unary_expr
+
+    MUL_TOK  shift, and go to state 155
+    DIV_TOK  shift, and go to state 156
+    MOD_TOK  shift, and go to state 157
+
+    $default  reduce using rule 116 (additive_expr)
+
+
+State 208
+
+  118 multiplicative_expr: multiplicative_expr MUL_TOK unary_expr •
+
+    $default  reduce using rule 118 (multiplicative_expr)
+
+
+State 209
+
+  119 multiplicative_expr: multiplicative_expr DIV_TOK unary_expr •
+
+    $default  reduce using rule 119 (multiplicative_expr)
+
+
+State 210
+
+  120 multiplicative_expr: multiplicative_expr MOD_TOK unary_expr •
+
+    $default  reduce using rule 120 (multiplicative_expr)
+
+
+State 211
+
+   86 assignment_expr: unary_expr error assignment_expr •
+
+    $default  reduce using rule 86 (assignment_expr)
+
+
+State 212
+
+   87 assignment_expr: unary_expr ASSIGN_TOK error •
+
+    $default  reduce using rule 87 (assignment_expr)
+
+
+State 213
+
+   80 assignment_expr: unary_expr ASSIGN_TOK assignment_expr •
+
+    $default  reduce using rule 80 (assignment_expr)
+
+
+State 214
+
+   81 assignment_expr: unary_expr ADD_ASSIGN_TOK assignment_expr •
+
+    $default  reduce using rule 81 (assignment_expr)
+
+
+State 215
+
+   82 assignment_expr: unary_expr SUB_ASSIGN_TOK assignment_expr •
+
+    $default  reduce using rule 82 (assignment_expr)
+
+
+State 216
+
+   83 assignment_expr: unary_expr MUL_ASSIGN_TOK assignment_expr •
+
+    $default  reduce using rule 83 (assignment_expr)
+
+
+State 217
+
+   84 assignment_expr: unary_expr DIV_ASSIGN_TOK assignment_expr •
+
+    $default  reduce using rule 84 (assignment_expr)
+
+
+State 218
+
+   85 assignment_expr: unary_expr MOD_ASSIGN_TOK assignment_expr •
+
+    $default  reduce using rule 85 (assignment_expr)
+
+
+State 219
+
+  136 postfix_expr: postfix_expr LPAREN_TOK error • RPAREN_TOK
+
+    RPAREN_TOK  shift, and go to state 239
+
+
+State 220
+
+  133 postfix_expr: postfix_expr LPAREN_TOK RPAREN_TOK •
+
+    $default  reduce using rule 133 (postfix_expr)
+
+
+State 221
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+  140 argument_list: expression •
+
+    error      shift, and go to state 230
+    COMMA_TOK  shift, and go to state 137
+
+    error       [reduce using rule 140 (argument_list)]
+    RPAREN_TOK  reduce using rule 140 (argument_list)
+    COMMA_TOK   [reduce using rule 140 (argument_list)]
+
+
+State 222
+
+  134 postfix_expr: postfix_expr LPAREN_TOK argument_list • RPAREN_TOK
+  135             | postfix_expr LPAREN_TOK argument_list • error
+  139 argument_list: argument_list • COMMA_TOK expression
+  141              | argument_list • error expression
+  142              | argument_list • COMMA_TOK error
+
+    error       shift, and go to state 240
+    RPAREN_TOK  shift, and go to state 241
+    COMMA_TOK   shift, and go to state 242
+
+
+State 223
+
+  132 postfix_expr: postfix_expr LBRACKET_TOK error • RBRACKET_TOK
+
+    RBRACKET_TOK  shift, and go to state 243
+
+
+State 224
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+  130 postfix_expr: postfix_expr LBRACKET_TOK expression • RBRACKET_TOK
+  131             | postfix_expr LBRACKET_TOK expression • error
+
+    error         shift, and go to state 244
+    RBRACKET_TOK  shift, and go to state 245
+    COMMA_TOK     shift, and go to state 137
+
+
+State 225
+
+   70 iteration_statement: WHILE_TOK LPAREN_TOK error RPAREN_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 246
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 226
+
+   69 iteration_statement: WHILE_TOK LPAREN_TOK expression error • statement
+   77 expression: expression error • assignment_expr
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 247
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 248
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 227
+
+   65 iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 249
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 228
+
+   66 iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement • RPAREN_TOK statement
+   67                    | FOR_TOK LPAREN_TOK expression_statement expression_statement • expression RPAREN_TOK statement
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    RPAREN_TOK      shift, and go to state 250
+
+    expression           go to state 251
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 229
+
+   68 iteration_statement: DO_TOK statement WHILE_TOK LPAREN_TOK • expression RPAREN_TOK SEMICOLON_TOK
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 252
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 230
+
+   77 expression: expression error • assignment_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 186
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 231
+
+   64 selection_statement: IF_TOK error expression RPAREN_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 253
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 232
+
+   63 selection_statement: IF_TOK LPAREN_TOK error RPAREN_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 254
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 233
+
+   62 selection_statement: IF_TOK LPAREN_TOK expression error • statement
+   77 expression: expression error • assignment_expr
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 255
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 248
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 234
+
+   60 selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK • statement
+   61                    | IF_TOK LPAREN_TOK expression RPAREN_TOK • statement ELSE_TOK statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 256
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 235
+
+   92 ternary_expr: logical_or_expr error expression COLON_TOK • ternary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ternary_expr         go to state 257
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 236
+
+   91 ternary_expr: logical_or_expr TERNARY_TOK error COLON_TOK • ternary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ternary_expr         go to state 258
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 237
+
+   77 expression: expression error • assignment_expr
+   90 ternary_expr: logical_or_expr TERNARY_TOK expression error • ternary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    assignment_expr      go to state 186
+    ternary_expr         go to state 259
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 238
+
+   89 ternary_expr: logical_or_expr TERNARY_TOK expression COLON_TOK • ternary_expr
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ternary_expr         go to state 260
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 191
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 239
+
+  136 postfix_expr: postfix_expr LPAREN_TOK error RPAREN_TOK •
+
+    $default  reduce using rule 136 (postfix_expr)
+
+
+State 240
+
+  135 postfix_expr: postfix_expr LPAREN_TOK argument_list error •
+  141 argument_list: argument_list error • expression
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ADD_TOK     [reduce using rule 135 (postfix_expr)]
+    SUB_TOK     [reduce using rule 135 (postfix_expr)]
+    INC_TOK     [reduce using rule 135 (postfix_expr)]
+    DEC_TOK     [reduce using rule 135 (postfix_expr)]
+    LPAREN_TOK  [reduce using rule 135 (postfix_expr)]
+    $default    reduce using rule 135 (postfix_expr)
+
+    expression           go to state 261
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 241
+
+  134 postfix_expr: postfix_expr LPAREN_TOK argument_list RPAREN_TOK •
+
+    $default  reduce using rule 134 (postfix_expr)
+
+
+State 242
+
+  139 argument_list: argument_list COMMA_TOK • expression
+  142              | argument_list COMMA_TOK • error
+
+    error           shift, and go to state 262
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    expression           go to state 263
+    assignment_expr      go to state 100
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 243
+
+  132 postfix_expr: postfix_expr LBRACKET_TOK error RBRACKET_TOK •
+
+    $default  reduce using rule 132 (postfix_expr)
+
+
+State 244
+
+   77 expression: expression error • assignment_expr
+  131 postfix_expr: postfix_expr LBRACKET_TOK expression error •
+
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+
+    ADD_TOK     [reduce using rule 131 (postfix_expr)]
+    SUB_TOK     [reduce using rule 131 (postfix_expr)]
+    INC_TOK     [reduce using rule 131 (postfix_expr)]
+    DEC_TOK     [reduce using rule 131 (postfix_expr)]
+    LPAREN_TOK  [reduce using rule 131 (postfix_expr)]
+    $default    reduce using rule 131 (postfix_expr)
+
+    assignment_expr      go to state 186
+    ternary_expr         go to state 101
+    logical_or_expr      go to state 102
+    logical_and_expr     go to state 103
+    bit_or_expr          go to state 104
+    bit_xor_expr         go to state 105
+    bit_and_expr         go to state 106
+    equality_expr        go to state 107
+    relational_expr      go to state 108
+    shift_expr           go to state 109
+    additive_expr        go to state 110
+    multiplicative_expr  go to state 111
+    unary_expr           go to state 112
+    unary_operator       go to state 113
+    postfix_expr         go to state 114
+    primary_expr         go to state 115
+
+
+State 245
+
+  130 postfix_expr: postfix_expr LBRACKET_TOK expression RBRACKET_TOK •
+
+    $default  reduce using rule 130 (postfix_expr)
+
+
+State 246
+
+   70 iteration_statement: WHILE_TOK LPAREN_TOK error RPAREN_TOK statement •
+
+    $default  reduce using rule 70 (iteration_statement)
+
+
+State 247
+
+   69 iteration_statement: WHILE_TOK LPAREN_TOK expression error statement •
+
+    $default  reduce using rule 69 (iteration_statement)
+
+
+State 248
+
+   75 expression: assignment_expr •
+   77           | expression error assignment_expr •
+
+    error       reduce using rule 75 (expression)
+    error       [reduce using rule 77 (expression)]
+    RPAREN_TOK  reduce using rule 77 (expression)
+    COMMA_TOK   reduce using rule 75 (expression)
+    COMMA_TOK   [reduce using rule 77 (expression)]
+    $default    reduce using rule 75 (expression)
+
+
+State 249
+
+   65 iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement •
+
+    $default  reduce using rule 65 (iteration_statement)
+
+
+State 250
+
+   66 iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement RPAREN_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 264
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 251
+
+   67 iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement expression • RPAREN_TOK statement
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error       shift, and go to state 230
+    RPAREN_TOK  shift, and go to state 265
+    COMMA_TOK   shift, and go to state 137
+
+
+State 252
+
+   68 iteration_statement: DO_TOK statement WHILE_TOK LPAREN_TOK expression • RPAREN_TOK SEMICOLON_TOK
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+
+    error       shift, and go to state 230
+    RPAREN_TOK  shift, and go to state 266
+    COMMA_TOK   shift, and go to state 137
+
+
+State 253
+
+   64 selection_statement: IF_TOK error expression RPAREN_TOK statement •
+
+    $default  reduce using rule 64 (selection_statement)
+
+
+State 254
+
+   63 selection_statement: IF_TOK LPAREN_TOK error RPAREN_TOK statement •
+
+    $default  reduce using rule 63 (selection_statement)
+
+
+State 255
+
+   62 selection_statement: IF_TOK LPAREN_TOK expression error statement •
+
+    $default  reduce using rule 62 (selection_statement)
+
+
+State 256
+
+   60 selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement •
+   61                    | IF_TOK LPAREN_TOK expression RPAREN_TOK statement • ELSE_TOK statement
+
+    ELSE_TOK  shift, and go to state 267
+
+    ELSE_TOK  [reduce using rule 60 (selection_statement)]
+    $default  reduce using rule 60 (selection_statement)
+
+
+State 257
+
+   92 ternary_expr: logical_or_expr error expression COLON_TOK ternary_expr •
+
+    $default  reduce using rule 92 (ternary_expr)
+
+
+State 258
+
+   91 ternary_expr: logical_or_expr TERNARY_TOK error COLON_TOK ternary_expr •
+
+    $default  reduce using rule 91 (ternary_expr)
+
+
+State 259
+
+   79 assignment_expr: ternary_expr •
+   90 ternary_expr: logical_or_expr TERNARY_TOK expression error ternary_expr •
+
+    error          reduce using rule 79 (assignment_expr)
+    error          [reduce using rule 90 (ternary_expr)]
+    COLON_TOK      reduce using rule 79 (assignment_expr)
+    COLON_TOK      [reduce using rule 90 (ternary_expr)]
+    RPAREN_TOK     reduce using rule 90 (ternary_expr)
+    RBRACKET_TOK   reduce using rule 90 (ternary_expr)
+    SEMICOLON_TOK  reduce using rule 90 (ternary_expr)
+    COMMA_TOK      reduce using rule 79 (assignment_expr)
+    COMMA_TOK      [reduce using rule 90 (ternary_expr)]
+    $default       reduce using rule 79 (assignment_expr)
+
+
+State 260
+
+   89 ternary_expr: logical_or_expr TERNARY_TOK expression COLON_TOK ternary_expr •
+
+    $default  reduce using rule 89 (ternary_expr)
+
+
+State 261
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+  141 argument_list: argument_list error expression •
+
+    error      shift, and go to state 230
+    COMMA_TOK  shift, and go to state 137
+
+    error       [reduce using rule 141 (argument_list)]
+    RPAREN_TOK  reduce using rule 141 (argument_list)
+    COMMA_TOK   [reduce using rule 141 (argument_list)]
+
+
+State 262
+
+  142 argument_list: argument_list COMMA_TOK error •
+
+    $default  reduce using rule 142 (argument_list)
+
+
+State 263
+
+   76 expression: expression • COMMA_TOK assignment_expr
+   77           | expression • error assignment_expr
+   78           | expression • COMMA_TOK error
+  139 argument_list: argument_list COMMA_TOK expression •
+
+    error      shift, and go to state 230
+    COMMA_TOK  shift, and go to state 137
+
+    error       [reduce using rule 139 (argument_list)]
+    RPAREN_TOK  reduce using rule 139 (argument_list)
+    COMMA_TOK   [reduce using rule 139 (argument_list)]
+
+
+State 264
+
+   66 iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement RPAREN_TOK statement •
+
+    $default  reduce using rule 66 (iteration_statement)
+
+
+State 265
+
+   67 iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement expression RPAREN_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 268
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 266
+
+   68 iteration_statement: DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK • SEMICOLON_TOK
+
+    SEMICOLON_TOK  shift, and go to state 269
+
+
+State 267
+
+   61 selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK • statement
+
+    error           shift, and go to state 70
+    INT_TOK         shift, and go to state 5
+    FLOAT_TOK       shift, and go to state 6
+    CHAR_TOK        shift, and go to state 7
+    VOID_TOK        shift, and go to state 8
+    WHILE_TOK       shift, and go to state 71
+    FOR_TOK         shift, and go to state 72
+    DO_TOK          shift, and go to state 73
+    IF_TOK          shift, and go to state 74
+    RETURN_TOK      shift, and go to state 75
+    ID_TOK          shift, and go to state 76
+    STRING_TOK      shift, and go to state 77
+    INTCONST_TOK    shift, and go to state 78
+    FLOATCONST_TOK  shift, and go to state 79
+    ADD_TOK         shift, and go to state 80
+    SUB_TOK         shift, and go to state 81
+    NOT_TOK         shift, and go to state 82
+    BIT_NOT_TOK     shift, and go to state 83
+    INC_TOK         shift, and go to state 84
+    DEC_TOK         shift, and go to state 85
+    LPAREN_TOK      shift, and go to state 86
+    LBRACE_TOK      shift, and go to state 87
+    SEMICOLON_TOK   shift, and go to state 88
+
+    declaration            go to state 89
+    data_type              go to state 90
+    compound_statement     go to state 91
+    statement              go to state 270
+    declaration_statement  go to state 94
+    expression_statement   go to state 95
+    selection_statement    go to state 96
+    iteration_statement    go to state 97
+    jump_statement         go to state 98
+    expression             go to state 99
+    assignment_expr        go to state 100
+    ternary_expr           go to state 101
+    logical_or_expr        go to state 102
+    logical_and_expr       go to state 103
+    bit_or_expr            go to state 104
+    bit_xor_expr           go to state 105
+    bit_and_expr           go to state 106
+    equality_expr          go to state 107
+    relational_expr        go to state 108
+    shift_expr             go to state 109
+    additive_expr          go to state 110
+    multiplicative_expr    go to state 111
+    unary_expr             go to state 112
+    unary_operator         go to state 113
+    postfix_expr           go to state 114
+    primary_expr           go to state 115
+
+
+State 268
+
+   67 iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement expression RPAREN_TOK statement •
+
+    $default  reduce using rule 67 (iteration_statement)
+
+
+State 269
+
+   68 iteration_statement: DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK •
+
+    $default  reduce using rule 68 (iteration_statement)
+
+
+State 270
+
+   61 selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement •
+
+    $default  reduce using rule 61 (selection_statement)

@@ -4,7 +4,7 @@
 #include<string.h>
 #include "y.tab.h"
 
-#define MAX_ID_LENGTH 31
+#define MAX_ID_LENGTH 32
 #define MAX_NUM_LENGTH 10
 #define MAX_STRING_LENGTH 256
 
@@ -17,10 +17,10 @@ void print_error(char* error_type, char* lexeme) {
 }
 
 int check_keyword(char* word) {
-    if (strcmp(word, "int") == 0) return INT_TOK;
-    if (strcmp(word, "float") == 0) return FLOAT_TOK;
-    if (strcmp(word, "char") == 0) return CHAR_TOK;
-    if (strcmp(word, "void") == 0) return VOID_TOK;
+    if (strcmp(word, "int") == 0) { yylval.type_val = INT_TOK; return INT_TOK; }
+    if (strcmp(word, "float") == 0) { yylval.type_val = FLOAT_TOK; return FLOAT_TOK; }
+    if (strcmp(word, "char") == 0) { yylval.type_val = CHAR_TOK; return CHAR_TOK; }
+    if (strcmp(word, "void") == 0) { yylval.type_val = VOID_TOK; return VOID_TOK; }
     if (strcmp(word, "while") == 0) return WHILE_TOK;
     if (strcmp(word, "for") == 0) return FOR_TOK;
     if (strcmp(word, "do") == 0) return DO_TOK;
