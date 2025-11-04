@@ -108,23 +108,38 @@ vals[0] = 3.14;    // Valid: float to float[]
 arr[0] = 3.14;     // TYPE ERROR: float to int[] mismatch
 ```
 
+## Documentation
+
+This assignment includes several detailed documentation files:
+
+- **[HASHTABLE_LINKEDLIST_IMPLEMENTATION.md](HASHTABLE_LINKEDLIST_IMPLEMENTATION.md)** - Comprehensive guide to the hybrid hashtable + doubly linked list symbol table implementation, including detailed explanations of data structures, algorithms, performance analysis, and examples.
+- **[DOC.md](DOC.md)** - Interaction between lexical analyzer, parser, and symbol table
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Summary of type checking implementation
+- **[CODE_FLOW_EXPLANATION.md](CODE_FLOW_EXPLANATION.md)** - Detailed code flow and execution examples
+- **[SYMBOL_TABLE_README.md](SYMBOL_TABLE_README.md)** - Basic symbol table overview
+
 ## File Structure
 
 ```
 Assignment-04/
-├── lex.l                    # Lexical analyzer (from Assignment-02)
-├── parse.y                  # Parser with type checking rules
-├── symbol_table.h           # Enhanced symbol table header
-├── symbol_table.c           # Symbol table implementation with type checking
-├── Makefile                 # Build configuration
-├── README.md                # This file
-├── test_type_checking.c     # Test: basic type compatibility
-├── test_arrays.c            # Test: array type checking
-├── test_conditionals.c      # Test: conditional type checking
-├── test_expressions.c       # Test: expression type checking
-├── test_pointer_errors.c    # Test: pointer error detection
-├── test_comprehensive.c     # Test: comprehensive scenarios
-└── test_simple.c            # Test: simple program structure
+├── lex.l                                        # Lexical analyzer (from Assignment-02)
+├── parse.y                                      # Parser with type checking rules
+├── symbol_table.h                               # Enhanced symbol table header
+├── symbol_table.c                               # Symbol table implementation with type checking
+├── Makefile                                     # Build configuration
+├── README.md                                    # This file
+├── HASHTABLE_LINKEDLIST_IMPLEMENTATION.md       # Detailed hashtable + linked list docs
+├── DOC.md                                       # Component interaction documentation
+├── IMPLEMENTATION_SUMMARY.md                    # Type checking summary
+├── CODE_FLOW_EXPLANATION.md                     # Code flow and execution
+├── SYMBOL_TABLE_README.md                       # Symbol table overview
+├── test_type_checking.c                         # Test: basic type compatibility
+├── test_arrays.c                                # Test: array type checking
+├── test_conditionals.c                          # Test: conditional type checking
+├── test_expressions.c                           # Test: expression type checking
+├── test_pointer_errors.c                        # Test: pointer error detection
+├── test_comprehensive.c                         # Test: comprehensive scenarios
+└── test_simple.c                                # Test: simple program structure
 ```
 
 ## Building the Project
