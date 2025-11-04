@@ -66,7 +66,7 @@ Each symbol is stored in a `symbol_node_t` structure:
 ```c
 typedef struct symbol_node {
     // Symbol information
-    char name[MAX_ID_LENGTH];          // Identifier name (MAX_ID_LENGTH = 32)
+    char name[MAX_ID_LENGTH];          // Identifier name (MAX_ID_LENGTH defined in symbol_table.h as 32)
     data_type_t type;                   // Data type (int, float, etc.)
     scope_type_t scope;                 // Scope type (global, function, block)
     int scope_level;                    // Numeric scope level (0=global, 1+)
@@ -171,7 +171,7 @@ Character 'n' (ASCII 110):
 Final: hash_index = 6385467242 % 211 = 3
 ```
 
-**Note**: The hash function uses `unsigned int` to handle large values correctly. On systems with 32-bit integers, values will wrap around (modulo 2^32), which is expected and doesn't affect the distribution quality.
+**Note**: The hash function uses `unsigned int` to handle large values correctly. The size of `unsigned int` is implementation-dependent but typically 32-bit on most modern systems (16-bit on some embedded systems). On systems with 32-bit unsigned integers, values will wrap around (modulo 2^32), which is expected and doesn't affect the distribution quality.
 
 So `"main"` maps to bucket index `3`.
 
@@ -879,14 +879,19 @@ Hash Table:
 
 ### Space Complexity
 
-**Per symbol (on 64-bit systems)**:
-- Symbol data: ~60 bytes (name, type, flags, etc.)
-- Pointers: 3 × 8 = 24 bytes (hash_next, next, prev on 64-bit)
-- **Total**: ~84 bytes per symbol (on 64-bit systems)
-- **Note**: On 32-bit systems, pointers are 4 bytes each, reducing total to ~72 bytes
+**Per symbol**:
+- Symbol data: 56-60 bytes (name[32] + type + scope + ints + flags, with potential padding)
+  - Breakdown: 32 (name) + 4 (type) + 4 (scope) + 4 (scope_level) + 4 (line_declared) + 12 (3×4 flags) = 60 bytes
+- Pointers (architecture-dependent):
+  - 64-bit systems: 3 × 8 = 24 bytes (hash_next, next, prev)
+  - 32-bit systems: 3 × 4 = 12 bytes
+- **Total**:
+  - 64-bit systems: ~84 bytes per symbol
+  - 32-bit systems: ~72 bytes per symbol
 
-**Hash table overhead**:
-- 211 buckets × 8 bytes = 1,688 bytes (fixed)
+**Hash table overhead (architecture-dependent)**:
+- 64-bit systems: 211 buckets × 8 bytes = 1,688 bytes
+- 32-bit systems: 211 buckets × 4 bytes = 844 bytes
 
 **For n symbols**:
 - Space: 1,688 + 84n bytes
