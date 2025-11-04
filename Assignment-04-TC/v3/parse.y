@@ -204,57 +204,114 @@ void check_pointer_dereference(data_type_t type) {
 %%
 
 /* Program structure */
-program: { init_symbol_table(); } global_declarations main_function user_functions
+program: { init_symbol_table(); } translation_unit
          { 
-           print_syntax_success("Complete C program");
-           printf("\n=== PARSING COMPLETED SUCCESSFULLY ===\n");
-           printf("Total syntax errors: %d\n", error_count);
-           print_symbol_table();
-         }
-       | { init_symbol_table(); } main_function user_functions
-         { 
-           print_syntax_success("C program with main function");
-           printf("\n=== PARSING COMPLETED SUCCESSFULLY ===\n");
-           printf("Total syntax errors: %d\n", error_count);
-           print_symbol_table();
-         }
-       | { init_symbol_table(); } main_function
-         { 
-           print_syntax_success("Simple C program with main function only");
+           print_syntax_success("C program");
            printf("\n=== PARSING COMPLETED SUCCESSFULLY ===\n");
            printf("Total syntax errors: %d\n", error_count);
            print_symbol_table();
          }
        ;
 
-/* Global declarations */
-global_declarations: global_declarations global_declaration
-                   | global_declaration
+translation_unit: translation_unit external_declaration
+                | external_declaration
+                ;
+
+/* External declarations - can be variable declarations or functions */
+external_declaration: declaration
+                    | function_definition
+                    ;
+
+/* Global/local variable declaration */
+declaration: declarator_list SEMICOLON_TOK
+            { 
+              print_syntax_success("Variable declaration"); 
+            }
+           | declarator_list error
+            {
+              printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after variable declaration\n", line_number);
+              error_count++;
+              yyerrok;
+            }
+           ;
+
+/* Variable declarators - includes the type */
+declarator_list: data_type { current_type = token_to_type($1); } declarators
+               ;
+
+declarators: declarators COMMA_TOK declarator
+           | declarator
+           | declarators error declarator
+            {
+              printf("SYNTAX ERROR (Line %d): Missing comma ',' between variable declarations\n", line_number);
+              error_count++;
+              yyerrok;
+            }
+           | declarators COMMA_TOK error
+            {
+              printf("SYNTAX ERROR (Line %d): Invalid declarator after comma\n", line_number);
+              error_count++;
+              yyerrok;
+            }
+           ;
+
+/* Function definitions and declarations */
+function_definition: data_type ID_TOK {
+                      // Add function to symbol table
+                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                          error_count++;
+                      }
+                     } LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
+                     { 
+                       print_syntax_success("Function declaration");
+                       free($2);
+                     }
+                   | data_type ID_TOK {
+                      // Add function to symbol table
+                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                          error_count++;
+                      }
+                     } LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
+                     { 
+                       print_syntax_success("Function declaration with parameters");
+                       free($2);
+                     }
+                   | data_type ID_TOK {
+                      // Add function to symbol table
+                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                          error_count++;
+                      }
+                     } LPAREN_TOK RPAREN_TOK function_body
+                     { 
+                       print_syntax_success("Function definition");
+                       free($2);
+                     }
+                   | data_type ID_TOK {
+                      // Add function to symbol table
+                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
+                          error_count++;
+                      }
+                     } LPAREN_TOK parameter_list RPAREN_TOK function_body
+                     { 
+                       print_syntax_success("Function definition with parameters");
+                       free($2);
+                     }
                    ;
 
-global_declaration: data_type { current_type = token_to_type($1); } declarator_list SEMICOLON_TOK
-                   { print_syntax_success("Global variable declaration"); }
-                  | function_declaration
-                   { print_syntax_success("Function declaration"); }
-                  | data_type declarator_list error
-                   {
-                     printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after variable declaration\n", line_number);
-                     error_count++;
-                     yyerrok;
-                   }
-                  | data_type error SEMICOLON_TOK
-                   {
-                     printf("SYNTAX ERROR (Line %d): Invalid variable declarator list\n", line_number);
-                     error_count++;
-                     yyerrok;
-                   }
-                  | error declarator_list SEMICOLON_TOK
-                   {
-                     printf("SYNTAX ERROR (Line %d): Invalid or missing data type in declaration\n", line_number);
-                     error_count++;
-                     yyerrok;
-                   }
-                  ;
+/* Function body - enters scope when opening brace is seen */
+function_body: LBRACE_TOK {
+                enter_scope();
+              } statement_list RBRACE_TOK
+              {
+                exit_scope();
+              }
+             | LBRACE_TOK {
+                enter_scope();
+              } RBRACE_TOK
+              {
+                exit_scope();
+              }
+             ;
 
 /* Data types */
 data_type: INT_TOK { $$ = INT_TOK; }
@@ -262,23 +319,6 @@ data_type: INT_TOK { $$ = INT_TOK; }
          | CHAR_TOK { $$ = CHAR_TOK; }
          | VOID_TOK { $$ = VOID_TOK; }
          ;
-
-/* Variable declarators */
-declarator_list: declarator_list COMMA_TOK declarator
-               | declarator
-               | declarator_list error declarator
-                {
-                  printf("SYNTAX ERROR (Line %d): Missing comma ',' between variable declarations\n", line_number);
-                  error_count++;
-                  yyerrok;
-                }
-               | declarator_list COMMA_TOK error
-                {
-                  printf("SYNTAX ERROR (Line %d): Invalid declarator after comma\n", line_number);
-                  error_count++;
-                  yyerrok;
-                }
-               ;
 
 declarator: ID_TOK
            {
@@ -336,89 +376,6 @@ declarator: ID_TOK
            }
          ;
 
-/* Main function */
-main_function: data_type ID_TOK { 
-                 // Add function to symbol table
-                 if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                     error_count++;
-                 }
-                 enter_scope();
-               } LPAREN_TOK RPAREN_TOK compound_statement
-               { 
-                 print_syntax_success("Main function definition");
-                 function_declared = 1;
-                 exit_scope();
-                 free($2);
-               }
-             | data_type ID_TOK { 
-                 // Add function to symbol table
-                 if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                     error_count++;
-                 }
-                 enter_scope();
-               } LPAREN_TOK parameter_list RPAREN_TOK compound_statement
-               { 
-                 print_syntax_success("Main function with parameters");
-                 function_declared = 1;
-                 exit_scope();
-                 free($2);
-               }
-             ;
-
-/* User defined functions */
-user_functions: user_functions user_function
-              | user_function
-              | /* empty */
-              ;
-
-user_function: function_declaration
-             | function_definition
-             ;
-
-function_declaration: data_type ID_TOK {
-                       // Add function declaration to symbol table
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                           error_count++;
-                       }
-                       free($2);
-                     } LPAREN_TOK RPAREN_TOK SEMICOLON_TOK
-                     { print_syntax_success("Function declaration"); }
-                    | data_type ID_TOK {
-                       // Add function declaration to symbol table
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                           error_count++;
-                       }
-                       free($2);
-                     } LPAREN_TOK parameter_list RPAREN_TOK SEMICOLON_TOK
-                     { print_syntax_success("Function declaration with parameters"); }
-                    ;
-
-function_definition: data_type ID_TOK {
-                      // Add function to symbol table
-                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                          error_count++;
-                      }
-                      enter_scope();
-                    } LPAREN_TOK RPAREN_TOK compound_statement
-                    { 
-                      print_syntax_success("Function definition");
-                      exit_scope();
-                      free($2);
-                    }
-                   | data_type ID_TOK {
-                      // Add function to symbol table
-                      if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                          error_count++;
-                      }
-                      enter_scope();
-                    } LPAREN_TOK parameter_list RPAREN_TOK compound_statement
-                    { 
-                      print_syntax_success("Function definition with parameters");
-                      exit_scope();
-                      free($2);
-                    }
-                   ;
-
 /* Parameter lists */
 parameter_list: parameter_list COMMA_TOK parameter
               | parameter
@@ -456,15 +413,13 @@ parameter: data_type ID_TOK
          ;
 
 /* Compound statements */
-compound_statement: LBRACE_TOK { enter_scope(); } statement_list RBRACE_TOK
+compound_statement: LBRACE_TOK statement_list RBRACE_TOK
                    { 
                      print_syntax_success("Compound statement");
-                     exit_scope();
                    }
-                  | LBRACE_TOK { enter_scope(); } RBRACE_TOK
+                  | LBRACE_TOK RBRACE_TOK
                    { 
                      print_syntax_success("Empty compound statement");
-                     exit_scope();
                    }
                   | LBRACE_TOK statement_list error
                    {
@@ -501,14 +456,7 @@ statement: declaration_statement
          ;
 
 /* Variable declarations inside functions/blocks */
-declaration_statement: data_type { current_type = token_to_type($1); } declarator_list SEMICOLON_TOK
-                      { print_syntax_success("Local variable declaration"); }
-                     | data_type declarator_list error
-                      {
-                        printf("SYNTAX ERROR (Line %d): Missing semicolon ';' after local variable declaration\n", line_number);
-                        error_count++;
-                        yyerrok;
-                      }
+declaration_statement: declaration
                      ;
 
 /* Expression statements */
