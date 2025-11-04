@@ -1,11 +1,12 @@
 int main() {
     int a;
     int b;
-    float x;
-    float y;
+    int x, y;
+
     a = 10;
     b = 20;
-    x = 3.14;
-    y = 2.5;
+    x = a + b;
+    y = x * 2;
+
     return 0;
 }
