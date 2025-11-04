@@ -223,7 +223,10 @@ void check_pointer_dereference(data_type_t type) {
 #  endif
 # endif
 
-
+/* Use api.header.include to #include this header
+   instead of duplicating it here.  */
+#ifndef YY_YY_Y_TAB_H_INCLUDED
+# define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -389,7 +392,7 @@ union YYSTYPE
         int is_lvalue;
     } expr_info;
 
-#line 393 "y.tab.c"
+#line 396 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -404,7 +407,7 @@ extern YYSTYPE yylval;
 int yyparse (void);
 
 
-
+#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
 /* Symbol kind.  */
 enum yysymbol_kind_t
 {
@@ -1659,7 +1662,7 @@ yyreduce:
   case 2: /* $@1: %empty  */
 #line 202 "parse.y"
          { init_symbol_table(); }
-#line 1663 "y.tab.c"
+#line 1666 "y.tab.c"
     break;
 
   case 3: /* program: $@1 translation_unit  */
@@ -1670,7 +1673,7 @@ yyreduce:
            printf("Total errors: %d\n", error_count);
            print_symbol_table();
          }
-#line 1674 "y.tab.c"
+#line 1677 "y.tab.c"
     break;
 
   case 8: /* $@2: %empty  */
@@ -1678,19 +1681,19 @@ yyreduce:
                                        {
                               current_type = token_to_type((yyvsp[0].type_val));
                             }
-#line 1682 "y.tab.c"
+#line 1685 "y.tab.c"
     break;
 
   case 9: /* global_variable_declaration: data_type $@2 init_declarator_list SEMICOLON_TOK  */
 #line 224 "parse.y"
                             { print_syntax_success("Global variable declaration"); }
-#line 1688 "y.tab.c"
+#line 1691 "y.tab.c"
     break;
 
   case 13: /* init_declarator: declarator ASSIGN_TOK assignment_expr  */
 #line 233 "parse.y"
                  { print_syntax_success("Variable initialization"); }
-#line 1694 "y.tab.c"
+#line 1697 "y.tab.c"
     break;
 
   case 14: /* declarator: ID_TOK  */
@@ -1701,7 +1704,7 @@ yyreduce:
              }
              free((yyvsp[0].string_val));
            }
-#line 1705 "y.tab.c"
+#line 1708 "y.tab.c"
     break;
 
   case 15: /* declarator: ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK  */
@@ -1720,7 +1723,7 @@ yyreduce:
              }
              free((yyvsp[-3].string_val));
            }
-#line 1724 "y.tab.c"
+#line 1727 "y.tab.c"
     break;
 
   case 16: /* declarator: ID_TOK LBRACKET_TOK RBRACKET_TOK  */
@@ -1739,7 +1742,7 @@ yyreduce:
              }
              free((yyvsp[-2].string_val));
            }
-#line 1743 "y.tab.c"
+#line 1746 "y.tab.c"
     break;
 
   case 17: /* $@3: %empty  */
@@ -1750,7 +1753,7 @@ yyreduce:
                        }
                        free((yyvsp[0].string_val));
                      }
-#line 1754 "y.tab.c"
+#line 1757 "y.tab.c"
     break;
 
   case 18: /* function_declaration: data_type ID_TOK $@3 LPAREN_TOK RPAREN_TOK function_tail  */
@@ -1758,7 +1761,7 @@ yyreduce:
                      {
                        print_syntax_success("Function (no parameters)");
                      }
-#line 1762 "y.tab.c"
+#line 1765 "y.tab.c"
     break;
 
   case 19: /* $@4: %empty  */
@@ -1769,7 +1772,7 @@ yyreduce:
                        }
                        free((yyvsp[0].string_val));
                      }
-#line 1773 "y.tab.c"
+#line 1776 "y.tab.c"
     break;
 
   case 20: /* function_declaration: data_type ID_TOK $@4 LPAREN_TOK parameter_list RPAREN_TOK function_tail  */
@@ -1777,19 +1780,19 @@ yyreduce:
                      {
                        print_syntax_success("Function (with parameters)");
                      }
-#line 1781 "y.tab.c"
+#line 1784 "y.tab.c"
     break;
 
   case 21: /* function_tail: SEMICOLON_TOK  */
 #line 297 "parse.y"
                { /* Function prototype */ }
-#line 1787 "y.tab.c"
+#line 1790 "y.tab.c"
     break;
 
   case 22: /* $@5: %empty  */
 #line 298 "parse.y"
                { enter_scope(); }
-#line 1793 "y.tab.c"
+#line 1796 "y.tab.c"
     break;
 
   case 23: /* function_tail: $@5 compound_statement  */
@@ -1798,31 +1801,31 @@ yyreduce:
                  /* Function definition */
                  exit_scope();
                }
-#line 1802 "y.tab.c"
+#line 1805 "y.tab.c"
     break;
 
   case 24: /* data_type: INT_TOK  */
 #line 306 "parse.y"
                    { (yyval.type_val) = INT_TOK; }
-#line 1808 "y.tab.c"
+#line 1811 "y.tab.c"
     break;
 
   case 25: /* data_type: FLOAT_TOK  */
 #line 307 "parse.y"
                      { (yyval.type_val) = FLOAT_TOK; }
-#line 1814 "y.tab.c"
+#line 1817 "y.tab.c"
     break;
 
   case 26: /* data_type: CHAR_TOK  */
 #line 308 "parse.y"
                     { (yyval.type_val) = CHAR_TOK; }
-#line 1820 "y.tab.c"
+#line 1823 "y.tab.c"
     break;
 
   case 27: /* data_type: VOID_TOK  */
 #line 309 "parse.y"
                     { (yyval.type_val) = VOID_TOK; }
-#line 1826 "y.tab.c"
+#line 1829 "y.tab.c"
     break;
 
   case 30: /* parameter: data_type ID_TOK  */
@@ -1833,7 +1836,7 @@ yyreduce:
             }
             free((yyvsp[0].string_val));
           }
-#line 1837 "y.tab.c"
+#line 1840 "y.tab.c"
     break;
 
   case 31: /* parameter: data_type ID_TOK LBRACKET_TOK RBRACKET_TOK  */
@@ -1852,19 +1855,19 @@ yyreduce:
             }
             free((yyvsp[-2].string_val));
           }
-#line 1856 "y.tab.c"
+#line 1859 "y.tab.c"
     break;
 
   case 32: /* compound_statement: LBRACE_TOK statement_list RBRACE_TOK  */
 #line 343 "parse.y"
                    { print_syntax_success("Compound statement"); }
-#line 1862 "y.tab.c"
+#line 1865 "y.tab.c"
     break;
 
   case 33: /* compound_statement: LBRACE_TOK RBRACE_TOK  */
 #line 345 "parse.y"
                    { print_syntax_success("Empty compound statement"); }
-#line 1868 "y.tab.c"
+#line 1871 "y.tab.c"
     break;
 
   case 42: /* $@6: %empty  */
@@ -1872,25 +1875,25 @@ yyreduce:
                                  {
                         current_type = token_to_type((yyvsp[0].type_val));
                       }
-#line 1876 "y.tab.c"
+#line 1879 "y.tab.c"
     break;
 
   case 43: /* declaration_statement: data_type $@6 init_declarator_list SEMICOLON_TOK  */
 #line 366 "parse.y"
                       { print_syntax_success("Local variable declaration"); }
-#line 1882 "y.tab.c"
+#line 1885 "y.tab.c"
     break;
 
   case 44: /* expression_statement: expression SEMICOLON_TOK  */
 #line 371 "parse.y"
                      { print_syntax_success("Expression statement"); }
-#line 1888 "y.tab.c"
+#line 1891 "y.tab.c"
     break;
 
   case 45: /* expression_statement: SEMICOLON_TOK  */
 #line 373 "parse.y"
                      { print_syntax_success("Empty statement"); }
-#line 1894 "y.tab.c"
+#line 1897 "y.tab.c"
     break;
 
   case 46: /* selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement  */
@@ -1899,7 +1902,7 @@ yyreduce:
                       check_condition_type((yyvsp[-2].expr_info).type);
                       print_syntax_success("If statement");
                     }
-#line 1903 "y.tab.c"
+#line 1906 "y.tab.c"
     break;
 
   case 47: /* selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement  */
@@ -1908,7 +1911,7 @@ yyreduce:
                       check_condition_type((yyvsp[-4].expr_info).type);
                       print_syntax_success("If-else statement");
                     }
-#line 1912 "y.tab.c"
+#line 1915 "y.tab.c"
     break;
 
   case 48: /* iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement  */
@@ -1917,19 +1920,19 @@ yyreduce:
                       check_condition_type((yyvsp[-2].expr_info).type);
                       print_syntax_success("While loop");
                     }
-#line 1921 "y.tab.c"
+#line 1924 "y.tab.c"
     break;
 
   case 49: /* iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement RPAREN_TOK statement  */
 #line 396 "parse.y"
                     { print_syntax_success("For loop"); }
-#line 1927 "y.tab.c"
+#line 1930 "y.tab.c"
     break;
 
   case 50: /* iteration_statement: FOR_TOK LPAREN_TOK expression_statement expression_statement expression RPAREN_TOK statement  */
 #line 398 "parse.y"
                     { print_syntax_success("For loop with increment"); }
-#line 1933 "y.tab.c"
+#line 1936 "y.tab.c"
     break;
 
   case 51: /* iteration_statement: DO_TOK statement WHILE_TOK LPAREN_TOK expression RPAREN_TOK SEMICOLON_TOK  */
@@ -1938,37 +1941,37 @@ yyreduce:
                       check_condition_type((yyvsp[-2].expr_info).type);
                       print_syntax_success("Do-while loop");
                     }
-#line 1942 "y.tab.c"
+#line 1945 "y.tab.c"
     break;
 
   case 52: /* jump_statement: RETURN_TOK expression SEMICOLON_TOK  */
 #line 408 "parse.y"
                { print_syntax_success("Return statement with value"); }
-#line 1948 "y.tab.c"
+#line 1951 "y.tab.c"
     break;
 
   case 53: /* jump_statement: RETURN_TOK SEMICOLON_TOK  */
 #line 410 "parse.y"
                { print_syntax_success("Return statement"); }
-#line 1954 "y.tab.c"
+#line 1957 "y.tab.c"
     break;
 
   case 54: /* expression: assignment_expr  */
 #line 415 "parse.y"
            { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 1960 "y.tab.c"
+#line 1963 "y.tab.c"
     break;
 
   case 55: /* expression: expression COMMA_TOK assignment_expr  */
 #line 417 "parse.y"
            { (yyval.expr_info).type = (yyvsp[0].expr_info).type; (yyval.expr_info).is_lvalue = 0; }
-#line 1966 "y.tab.c"
+#line 1969 "y.tab.c"
     break;
 
   case 56: /* assignment_expr: ternary_expr  */
 #line 421 "parse.y"
                 { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 1972 "y.tab.c"
+#line 1975 "y.tab.c"
     break;
 
   case 57: /* assignment_expr: unary_expr ASSIGN_TOK assignment_expr  */
@@ -1978,7 +1981,7 @@ yyreduce:
                   (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 1982 "y.tab.c"
+#line 1985 "y.tab.c"
     break;
 
   case 58: /* assignment_expr: unary_expr ADD_ASSIGN_TOK assignment_expr  */
@@ -1989,7 +1992,7 @@ yyreduce:
                   (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 1993 "y.tab.c"
+#line 1996 "y.tab.c"
     break;
 
   case 59: /* assignment_expr: unary_expr SUB_ASSIGN_TOK assignment_expr  */
@@ -2000,7 +2003,7 @@ yyreduce:
                   (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2004 "y.tab.c"
+#line 2007 "y.tab.c"
     break;
 
   case 60: /* assignment_expr: unary_expr MUL_ASSIGN_TOK assignment_expr  */
@@ -2011,7 +2014,7 @@ yyreduce:
                   (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2015 "y.tab.c"
+#line 2018 "y.tab.c"
     break;
 
   case 61: /* assignment_expr: unary_expr DIV_ASSIGN_TOK assignment_expr  */
@@ -2022,7 +2025,7 @@ yyreduce:
                   (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2026 "y.tab.c"
+#line 2029 "y.tab.c"
     break;
 
   case 62: /* assignment_expr: unary_expr MOD_ASSIGN_TOK assignment_expr  */
@@ -2033,13 +2036,13 @@ yyreduce:
                   (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2037 "y.tab.c"
+#line 2040 "y.tab.c"
     break;
 
   case 63: /* ternary_expr: logical_or_expr  */
 #line 466 "parse.y"
              { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2043 "y.tab.c"
+#line 2046 "y.tab.c"
     break;
 
   case 64: /* ternary_expr: logical_or_expr TERNARY_TOK expression COLON_TOK ternary_expr  */
@@ -2054,13 +2057,13 @@ yyreduce:
                (yyval.expr_info).type = (yyvsp[-2].expr_info).type;
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2058 "y.tab.c"
+#line 2061 "y.tab.c"
     break;
 
   case 65: /* logical_or_expr: logical_and_expr  */
 #line 481 "parse.y"
                 { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2064 "y.tab.c"
+#line 2067 "y.tab.c"
     break;
 
   case 66: /* logical_or_expr: logical_or_expr OR_TOK logical_and_expr  */
@@ -2069,13 +2072,13 @@ yyreduce:
                   (yyval.expr_info).type = check_logical_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "||");
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2073 "y.tab.c"
+#line 2076 "y.tab.c"
     break;
 
   case 67: /* logical_and_expr: bit_or_expr  */
 #line 490 "parse.y"
                  { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2079 "y.tab.c"
+#line 2082 "y.tab.c"
     break;
 
   case 68: /* logical_and_expr: logical_and_expr AND_TOK bit_or_expr  */
@@ -2084,13 +2087,13 @@ yyreduce:
                    (yyval.expr_info).type = check_logical_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "&&");
                    (yyval.expr_info).is_lvalue = 0;
                  }
-#line 2088 "y.tab.c"
+#line 2091 "y.tab.c"
     break;
 
   case 69: /* bit_or_expr: bit_xor_expr  */
 #line 499 "parse.y"
             { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2094 "y.tab.c"
+#line 2097 "y.tab.c"
     break;
 
   case 70: /* bit_or_expr: bit_or_expr BIT_OR_TOK bit_xor_expr  */
@@ -2099,13 +2102,13 @@ yyreduce:
               (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "|");
               (yyval.expr_info).is_lvalue = 0;
             }
-#line 2103 "y.tab.c"
+#line 2106 "y.tab.c"
     break;
 
   case 71: /* bit_xor_expr: bit_and_expr  */
 #line 508 "parse.y"
              { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2109 "y.tab.c"
+#line 2112 "y.tab.c"
     break;
 
   case 72: /* bit_xor_expr: bit_xor_expr BIT_XOR_TOK bit_and_expr  */
@@ -2114,13 +2117,13 @@ yyreduce:
                (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "^");
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2118 "y.tab.c"
+#line 2121 "y.tab.c"
     break;
 
   case 73: /* bit_and_expr: equality_expr  */
 #line 517 "parse.y"
              { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2124 "y.tab.c"
+#line 2127 "y.tab.c"
     break;
 
   case 74: /* bit_and_expr: bit_and_expr BIT_AND_TOK equality_expr  */
@@ -2129,13 +2132,13 @@ yyreduce:
                (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "&");
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2133 "y.tab.c"
+#line 2136 "y.tab.c"
     break;
 
   case 75: /* equality_expr: relational_expr  */
 #line 526 "parse.y"
               { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2139 "y.tab.c"
+#line 2142 "y.tab.c"
     break;
 
   case 76: /* equality_expr: equality_expr EQ_TOK relational_expr  */
@@ -2144,7 +2147,7 @@ yyreduce:
                 (yyval.expr_info).type = check_relational_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "==");
                 (yyval.expr_info).is_lvalue = 0;
               }
-#line 2148 "y.tab.c"
+#line 2151 "y.tab.c"
     break;
 
   case 77: /* equality_expr: equality_expr NEQ_TOK relational_expr  */
@@ -2153,13 +2156,13 @@ yyreduce:
                 (yyval.expr_info).type = check_relational_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "!=");
                 (yyval.expr_info).is_lvalue = 0;
               }
-#line 2157 "y.tab.c"
+#line 2160 "y.tab.c"
     break;
 
   case 78: /* relational_expr: shift_expr  */
 #line 540 "parse.y"
                 { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2163 "y.tab.c"
+#line 2166 "y.tab.c"
     break;
 
   case 79: /* relational_expr: relational_expr LT_TOK shift_expr  */
@@ -2168,7 +2171,7 @@ yyreduce:
                   (yyval.expr_info).type = check_relational_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "<");
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2172 "y.tab.c"
+#line 2175 "y.tab.c"
     break;
 
   case 80: /* relational_expr: relational_expr GT_TOK shift_expr  */
@@ -2177,7 +2180,7 @@ yyreduce:
                   (yyval.expr_info).type = check_relational_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, ">");
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2181 "y.tab.c"
+#line 2184 "y.tab.c"
     break;
 
   case 81: /* relational_expr: relational_expr LE_TOK shift_expr  */
@@ -2186,7 +2189,7 @@ yyreduce:
                   (yyval.expr_info).type = check_relational_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "<=");
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2190 "y.tab.c"
+#line 2193 "y.tab.c"
     break;
 
   case 82: /* relational_expr: relational_expr GE_TOK shift_expr  */
@@ -2195,13 +2198,13 @@ yyreduce:
                   (yyval.expr_info).type = check_relational_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, ">=");
                   (yyval.expr_info).is_lvalue = 0;
                 }
-#line 2199 "y.tab.c"
+#line 2202 "y.tab.c"
     break;
 
   case 83: /* shift_expr: additive_expr  */
 #line 564 "parse.y"
            { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2205 "y.tab.c"
+#line 2208 "y.tab.c"
     break;
 
   case 84: /* shift_expr: shift_expr BIT_LSHIFT_TOK additive_expr  */
@@ -2210,7 +2213,7 @@ yyreduce:
              (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "<<");
              (yyval.expr_info).is_lvalue = 0;
            }
-#line 2214 "y.tab.c"
+#line 2217 "y.tab.c"
     break;
 
   case 85: /* shift_expr: shift_expr BIT_RSHIFT_TOK additive_expr  */
@@ -2219,13 +2222,13 @@ yyreduce:
              (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, ">>");
              (yyval.expr_info).is_lvalue = 0;
            }
-#line 2223 "y.tab.c"
+#line 2226 "y.tab.c"
     break;
 
   case 86: /* additive_expr: multiplicative_expr  */
 #line 578 "parse.y"
               { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2229 "y.tab.c"
+#line 2232 "y.tab.c"
     break;
 
   case 87: /* additive_expr: additive_expr ADD_TOK multiplicative_expr  */
@@ -2234,7 +2237,7 @@ yyreduce:
                 (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "+");
                 (yyval.expr_info).is_lvalue = 0;
               }
-#line 2238 "y.tab.c"
+#line 2241 "y.tab.c"
     break;
 
   case 88: /* additive_expr: additive_expr SUB_TOK multiplicative_expr  */
@@ -2243,13 +2246,13 @@ yyreduce:
                 (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "-");
                 (yyval.expr_info).is_lvalue = 0;
               }
-#line 2247 "y.tab.c"
+#line 2250 "y.tab.c"
     break;
 
   case 89: /* multiplicative_expr: unary_expr  */
 #line 592 "parse.y"
                     { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2253 "y.tab.c"
+#line 2256 "y.tab.c"
     break;
 
   case 90: /* multiplicative_expr: multiplicative_expr MUL_TOK unary_expr  */
@@ -2258,7 +2261,7 @@ yyreduce:
                       (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "*");
                       (yyval.expr_info).is_lvalue = 0;
                     }
-#line 2262 "y.tab.c"
+#line 2265 "y.tab.c"
     break;
 
   case 91: /* multiplicative_expr: multiplicative_expr DIV_TOK unary_expr  */
@@ -2267,7 +2270,7 @@ yyreduce:
                       (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "/");
                       (yyval.expr_info).is_lvalue = 0;
                     }
-#line 2271 "y.tab.c"
+#line 2274 "y.tab.c"
     break;
 
   case 92: /* multiplicative_expr: multiplicative_expr MOD_TOK unary_expr  */
@@ -2276,13 +2279,13 @@ yyreduce:
                       (yyval.expr_info).type = check_binary_op_type((yyvsp[-2].expr_info).type, (yyvsp[0].expr_info).type, "%");
                       (yyval.expr_info).is_lvalue = 0;
                     }
-#line 2280 "y.tab.c"
+#line 2283 "y.tab.c"
     break;
 
   case 93: /* unary_expr: postfix_expr  */
 #line 611 "parse.y"
            { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2286 "y.tab.c"
+#line 2289 "y.tab.c"
     break;
 
   case 94: /* unary_expr: INC_TOK unary_expr  */
@@ -2294,7 +2297,7 @@ yyreduce:
              (yyval.expr_info).type = (yyvsp[0].expr_info).type;
              (yyval.expr_info).is_lvalue = 0;
            }
-#line 2298 "y.tab.c"
+#line 2301 "y.tab.c"
     break;
 
   case 95: /* unary_expr: DEC_TOK unary_expr  */
@@ -2306,7 +2309,7 @@ yyreduce:
              (yyval.expr_info).type = (yyvsp[0].expr_info).type;
              (yyval.expr_info).is_lvalue = 0;
            }
-#line 2310 "y.tab.c"
+#line 2313 "y.tab.c"
     break;
 
   case 96: /* unary_expr: unary_operator unary_expr  */
@@ -2320,13 +2323,13 @@ yyreduce:
              (yyval.expr_info).type = (yyvsp[0].expr_info).type;
              (yyval.expr_info).is_lvalue = 0;
            }
-#line 2324 "y.tab.c"
+#line 2327 "y.tab.c"
     break;
 
   case 101: /* postfix_expr: primary_expr  */
 #line 647 "parse.y"
              { (yyval.expr_info) = (yyvsp[0].expr_info); }
-#line 2330 "y.tab.c"
+#line 2333 "y.tab.c"
     break;
 
   case 102: /* postfix_expr: postfix_expr LBRACKET_TOK expression RBRACKET_TOK  */
@@ -2343,7 +2346,7 @@ yyreduce:
                (yyval.expr_info).type = get_base_type((yyvsp[-3].expr_info).type);
                (yyval.expr_info).is_lvalue = 1;
              }
-#line 2347 "y.tab.c"
+#line 2350 "y.tab.c"
     break;
 
   case 103: /* postfix_expr: postfix_expr LPAREN_TOK RPAREN_TOK  */
@@ -2353,7 +2356,7 @@ yyreduce:
                 (yyval.expr_info).type = TYPE_INT;
                 (yyval.expr_info).is_lvalue = 0;
               }
-#line 2357 "y.tab.c"
+#line 2360 "y.tab.c"
     break;
 
   case 104: /* postfix_expr: postfix_expr LPAREN_TOK argument_list RPAREN_TOK  */
@@ -2363,7 +2366,7 @@ yyreduce:
                 (yyval.expr_info).type = TYPE_INT;
                 (yyval.expr_info).is_lvalue = 0;
               }
-#line 2367 "y.tab.c"
+#line 2370 "y.tab.c"
     break;
 
   case 105: /* postfix_expr: postfix_expr INC_TOK  */
@@ -2375,7 +2378,7 @@ yyreduce:
                (yyval.expr_info).type = (yyvsp[-1].expr_info).type;
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2379 "y.tab.c"
+#line 2382 "y.tab.c"
     break;
 
   case 106: /* postfix_expr: postfix_expr DEC_TOK  */
@@ -2387,7 +2390,7 @@ yyreduce:
                (yyval.expr_info).type = (yyvsp[-1].expr_info).type;
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2391 "y.tab.c"
+#line 2394 "y.tab.c"
     break;
 
   case 109: /* primary_expr: ID_TOK  */
@@ -2405,7 +2408,7 @@ yyreduce:
                }
                free((yyvsp[0].string_val));
              }
-#line 2409 "y.tab.c"
+#line 2412 "y.tab.c"
     break;
 
   case 110: /* primary_expr: INTCONST_TOK  */
@@ -2414,7 +2417,7 @@ yyreduce:
                (yyval.expr_info).type = TYPE_INT;
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2418 "y.tab.c"
+#line 2421 "y.tab.c"
     break;
 
   case 111: /* primary_expr: FLOATCONST_TOK  */
@@ -2423,7 +2426,7 @@ yyreduce:
                (yyval.expr_info).type = TYPE_FLOAT;
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2427 "y.tab.c"
+#line 2430 "y.tab.c"
     break;
 
   case 112: /* primary_expr: STRING_TOK  */
@@ -2433,7 +2436,7 @@ yyreduce:
                (yyval.expr_info).type = TYPE_CHAR_PTR;
                (yyval.expr_info).is_lvalue = 0;
              }
-#line 2437 "y.tab.c"
+#line 2440 "y.tab.c"
     break;
 
   case 113: /* primary_expr: LPAREN_TOK expression RPAREN_TOK  */
@@ -2441,11 +2444,11 @@ yyreduce:
              {
                (yyval.expr_info) = (yyvsp[-1].expr_info);
              }
-#line 2445 "y.tab.c"
+#line 2448 "y.tab.c"
     break;
 
 
-#line 2449 "y.tab.c"
+#line 2452 "y.tab.c"
 
       default: break;
     }
