@@ -66,7 +66,7 @@ Each symbol is stored in a `symbol_node_t` structure:
 ```c
 typedef struct symbol_node {
     // Symbol information
-    char name[MAX_ID_LENGTH];          // Identifier name (max 32 chars)
+    char name[MAX_ID_LENGTH];          // Identifier name (MAX_ID_LENGTH = 32)
     data_type_t type;                   // Data type (int, float, etc.)
     scope_type_t scope;                 // Scope type (global, function, block)
     int scope_level;                    // Numeric scope level (0=global, 1+)
@@ -166,10 +166,12 @@ Character 'i' (ASCII 105):
 Character 'n' (ASCII 110):
   hash = (193499004 << 5) + 193499004 + 110
   hash = 6191968128 + 193499004 + 110
-  hash = 6385467242
+  hash = 6385467242 (using unsigned int arithmetic)
 
 Final: hash_index = 6385467242 % 211 = 3
 ```
+
+**Note**: The hash function uses `unsigned int` to handle large values correctly. On systems with 32-bit integers, values will wrap around (modulo 2^32), which is expected and doesn't affect the distribution quality.
 
 So `"main"` maps to bucket index `3`.
 
@@ -877,10 +879,11 @@ Hash Table:
 
 ### Space Complexity
 
-**Per symbol**:
+**Per symbol (on 64-bit systems)**:
 - Symbol data: ~60 bytes (name, type, flags, etc.)
-- Pointers: 3 × 8 = 24 bytes (hash_next, next, prev)
-- **Total**: ~84 bytes per symbol
+- Pointers: 3 × 8 = 24 bytes (hash_next, next, prev on 64-bit)
+- **Total**: ~84 bytes per symbol (on 64-bit systems)
+- **Note**: On 32-bit systems, pointers are 4 bytes each, reducing total to ~72 bytes
 
 **Hash table overhead**:
 - 211 buckets × 8 bytes = 1,688 bytes (fixed)
@@ -947,10 +950,10 @@ Average comparisons in lookup = 1 + α/2
 - Fixed hash table size (1,688 bytes)
 - More memory than simple array
 
-**Comparison**:
+**Comparison (on 64-bit systems)**:
 - Array-based: 60 bytes/symbol
-- Hashtable + Linked list: 84 bytes/symbol
-- **Overhead**: 40% more memory
+- Hashtable + Linked list: 84 bytes/symbol (72 bytes on 32-bit)
+- **Overhead**: 40% more memory (on 64-bit systems)
 
 #### 2. Cache Performance
 - Scattered memory locations (not contiguous)
