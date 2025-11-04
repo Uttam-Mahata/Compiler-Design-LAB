@@ -1,5 +1,15 @@
 # Symbol Table Implementation with Linked List & Hash Table
 
+> **📖 For a comprehensive, detailed explanation of the hashtable + linked list implementation, see [HASHTABLE_LINKEDLIST_IMPLEMENTATION.md](HASHTABLE_LINKEDLIST_IMPLEMENTATION.md)**
+>
+> This file provides a brief overview. The comprehensive documentation includes:
+> - Detailed data structure explanations with visual diagrams
+> - Step-by-step insertion and lookup examples with hash calculations
+> - Complete code walkthroughs
+> - Performance analysis and complexity proofs
+> - Real-world examples and collision handling scenarios
+> - Advantages, trade-offs, and comparisons with alternatives
+
 ## Data Structure Design
 
 ### Overview
