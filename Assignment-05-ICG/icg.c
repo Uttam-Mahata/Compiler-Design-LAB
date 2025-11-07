@@ -14,47 +14,117 @@ Label Op Arg1 Arg2 Result
 
 */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include "icg.h"
 
-void gen(char *op, char *arg1, char *arg2, char *result);
-
-
+FILE *output_file = NULL;
+int quad_count = 0;
 int temp_count = 0;
 int label_count = 0;
-FILE *fp;
 
-char* newtemp() {
-    char *temp = (char*)malloc(5 * sizeof(char));
+quadruple_t quad_array[MAX_QUADS];
+
+void init_icg() {
+    output_file = fopen("three_address_code.txt", "w");
+    if (output_file == NULL) {
+        printf("ERROR: Cannot open output file for three-address code\n");
+        exit(1);
+    }
+    quad_count = 0;
+    temp_count = 0;
+    label_count = 0;
+    fprintf(output_file, "=== THREE ADDRESS CODE (Quadruples) ===\n\n");
+    fprintf(output_file, "%-6s %-12s %-12s %-12s %-12s\n", "Label", "Op", "Arg1", "Arg2", "Result");
+    fprintf(output_file, "------------------------------------------------------------\n");
+    printf("\n=== INTERMEDIATE CODE GENERATION INITIALIZED ===\n");
+}
+
+void close_icg() {
+    if (output_file != NULL) {
+        fprintf(output_file, "\n------------------------------------------------------------\n");
+        fprintf(output_file, "Total quadruples generated: %d\n", quad_count);
+        fclose(output_file);
+        printf("\n=== THREE ADDRESS CODE WRITTEN TO 'three_address_code.txt' ===\n");
+        printf("Total quadruples: %d\n", quad_count);
+    }
+}
+
+char* new_temp() {
+    char* temp = (char*)malloc(10 * sizeof(char));
     sprintf(temp, "T%d", temp_count++);
     return temp;
 }
 
-char* newlabel() {
-    char *label = (char*)malloc(5 * sizeof(char));
+char* new_label() {
+    char* label = (char*)malloc(10 * sizeof(char));
     sprintf(label, "L%d", label_count++);
     return label;
 }
 
 void gen(char *op, char *arg1, char *arg2, char *result) {
-    fprintf(fp, "%s\t%s\t%s\t%s\n", op, arg1, arg2, result);
+    if (quad_count >= MAX_QUADS) {
+        printf("ERROR: Maximum quadruple limit reached\n");
+        return;
+    }
+    
+    quadruple_t *quad = &quad_array[quad_count];
+    quad->label = quad_count;
+    
+    // Copy strings safely
+    strncpy(quad->op, op ? op : "", 15);
+    quad->op[15] = '\0';
+    
+    strncpy(quad->arg1, arg1 ? arg1 : "", 15);
+    quad->arg1[15] = '\0';
+    
+    strncpy(quad->arg2, arg2 ? arg2 : "", 15);
+    quad->arg2[15] = '\0';
+    
+    strncpy(quad->result, result ? result : "", 15);
+    quad->result[15] = '\0';
+    
+    // Write to output file
+    fprintf(output_file, "%-6d %-12s %-12s %-12s %-12s\n", 
+            quad->label, quad->op, quad->arg1, quad->arg2, quad->result);
+    
+    // Also print to console for debugging
+    printf("ICG: %02d: %s %s %s %s\n", 
+           quad->label, quad->op, quad->arg1, quad->arg2, quad->result);
+    
+    quad_count++;
 }
 
-int main() {
-    fp = fopen("output.txt", "w");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
-        return 1;
+void backpatch(int *list, int size, int target_label) {
+    char target[10];
+    sprintf(target, "L%d", target_label);
+    
+    for (int i = 0; i < size; i++) {
+        int quad_index = list[i];
+        if (quad_index < quad_count) {
+            strncpy(quad_array[quad_index].result, target, 15);
+            quad_array[quad_index].result[15] = '\0';
+        }
     }
+}
 
-    // Example: a = b * -c
-    char *t1 = newtemp();
-    char *t2 = newtemp();
-    gen("uminus", "c", "", t1);
-    gen("*", "b", t1, t2);
-    gen("=", t2, "", "a");
+int next_quad() {
+    return quad_count;
+}
 
-    fclose(fp);
-    return 0;
+void emit_label(char *label) {
+    gen("label", "", "", label);
+}
+
+void print_quad_array() {
+    printf("\n=== GENERATED QUADRUPLES ===\n");
+    printf("%-6s %-12s %-12s %-12s %-12s\n", "Label", "Op", "Arg1", "Arg2", "Result");
+    printf("------------------------------------------------------------\n");
+    for (int i = 0; i < quad_count; i++) {
+        printf("%-6d %-12s %-12s %-12s %-12s\n",
+               quad_array[i].label,
+               quad_array[i].op,
+               quad_array[i].arg1,
+               quad_array[i].arg2,
+               quad_array[i].result);
+    }
+    printf("------------------------------------------------------------\n");
 }
