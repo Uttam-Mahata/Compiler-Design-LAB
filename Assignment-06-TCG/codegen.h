@@ -11,7 +11,7 @@
 #define MAX_NAME_LEN 32     // Maximum length of variable/temp names
 #define MAX_VARS 100        // Maximum number of variables
 
-// Quadruple structure for three-address code
+//Quadruple structure for three-address code
 typedef struct {
     int label;
     char op[16];
@@ -20,18 +20,18 @@ typedef struct {
     char result[16];
 } Quadruple;
 
-// Register descriptor - tracks what is in each register
+// Register descriptor 
 typedef struct {
     char name[8];           // Register name (R0, R1, R2, R3)
-    bool is_free;           // Is the register available?
-    char contains[MAX_NAME_LEN]; // What variable/temp is in this register
-    bool dirty;             // Has value been modified (needs to be stored)?
+    bool is_free;           // Is the register available
+    char contains[MAX_NAME_LEN]; //  variable/temp is in this register
+    bool dirty;             // Has value been modified (needs to be stored)
 } RegisterDescriptor;
 
-// Address descriptor - tracks where each variable is
+// Address descriptor 
 typedef struct {
     char var_name[MAX_NAME_LEN]; // Variable/temp name
-    bool in_memory;         // Is it in memory?
+    bool in_memory;         // Is it in memory
     int reg_num;            // Which register (-1 if not in register)
     bool live;              // Is the variable live after this statement?
 } AddressDescriptor;
@@ -97,4 +97,4 @@ int read_three_address_code(char *filename);
 void parse_quadruple(char *line, Quadruple *quad);
 void process_instructions();
 
-#endif // CODEGEN_H
+#endif
