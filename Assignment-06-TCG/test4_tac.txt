@@ -1,0 +1,15 @@
+=== THREE ADDRESS CODE (Quadruples) ===
+
+Label  Op           Arg1         Arg2         Result      
+------------------------------------------------------------
+0      =            0                         sum         
+1      =            5                         i           
+2      label_begin                            L0          
+3      ifFalse      i                         L1          
+4      +            sum          i            T0          
+5      =            T0                        sum         
+6      -            i            1            T1          
+7      =            T1                        i           
+8      goto                                   L0          
+9      label_end                              L1          
+------------------------------------------------------------
