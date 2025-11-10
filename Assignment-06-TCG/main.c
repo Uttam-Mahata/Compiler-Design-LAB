@@ -59,24 +59,40 @@ void parse_quadruple(char *line, Quadruple *quad) {
         if (token_count >= 3) strcpy(quad->arg1, tokens[2]);
         if (token_count >= 4) strcpy(quad->result, tokens[3]);
     }
-    else if (strcmp(quad->op, "uminus") == 0) {
+
+
+
+else if (strcmp(quad->op, "uminus") == 0) {
         // Unary minus: label uminus arg1 result
         if (token_count >= 3) strcpy(quad->arg1, tokens[2]);
         if (token_count >= 4) strcpy(quad->result, tokens[3]);
     }
-    else if (strcmp(quad->op, "label_begin") == 0 || strcmp(quad->op, "label_end") == 0) {
+
+
+
+ else if (strcmp(quad->op, "label_begin") == 0 || strcmp(quad->op, "label_end") == 0) {
         // Label: label label_begin/label_end result_label
         if (token_count >= 3) strcpy(quad->result, tokens[2]);
     }
-    else if (strcmp(quad->op, "ifFalse") == 0) {
+
+
+
+else if (strcmp(quad->op, "ifFalse") == 0) {
         // Conditional: label ifFalse condition target_label
         if (token_count >= 3) strcpy(quad->arg1, tokens[2]);
         if (token_count >= 4) strcpy(quad->result, tokens[3]);
     }
+
+
+
     else if (strcmp(quad->op, "goto") == 0) {
         // Goto: label goto target_label
         if (token_count >= 3) strcpy(quad->result, tokens[2]);
     }
+
+
+
+    
     else {
         // Arithmetic: label op arg1 arg2 result
         if (token_count >= 3) strcpy(quad->arg1, tokens[2]);

@@ -12,16 +12,12 @@ FILE *output_file = NULL;
 // Memory base address for static allocation
 static int memory_base = 1000;
 
-/**
- * Initialize the code generator
- */
 void init_code_generator() {
     init_registers();
     init_address_descriptors();
     num_instructions = 0;
     num_vars = 0;
     
-    // Open output file for assembly code
     output_file = fopen("assembly_code.asm", "w");
     if (!output_file) {
         fprintf(stderr, "Error: Cannot open output file\n");
@@ -33,18 +29,16 @@ void init_code_generator() {
     fprintf(output_file, "; Instruction Set: 8085/8086 compatible\n\n");
 }
 
-/**
- * Close the code generator and cleanup
- */
+
 void close_code_generator() {
     fprintf(output_file, "\nHALT\n");
     fclose(output_file);
     printf("\n=== Assembly code generated in 'assembly_code.asm' ===\n");
 }
 
-/**
- * Initialize all registers as free
- */
+
+
+
 void init_registers() {
     for (int i = 0; i < MAX_REGS; i++) {
         sprintf(registers[i].name, "R%d", i);
@@ -54,9 +48,7 @@ void init_registers() {
     }
 }
 
-/**
- * Initialize address descriptors for all variables
- */
+
 void init_address_descriptors() {
     for (int i = 0; i < MAX_VARS; i++) {
         address_desc[i].var_name[0] = '\0';
@@ -66,16 +58,12 @@ void init_address_descriptors() {
     }
 }
 
-/**
- * Check if a name is a temporary variable (starts with 'T')
- */
+
 bool is_temporary(char *name) {
     return (name && name[0] == 'T' && isdigit(name[1]));
 }
 
-/**
- * Check if a name is a constant (all digits or negative number)
- */
+
 bool is_constant(char *name) {
     if (!name || name[0] == '\0') return false;
     
@@ -88,21 +76,15 @@ bool is_constant(char *name) {
     return i > 0;
 }
 
-/**
- * Find the address descriptor for a variable
- * Create new one if it doesn't exist
- */
 int get_address_descriptor(char *var) {
     if (!var || var[0] == '\0') return -1;
     
-    // Search for existing descriptor
     for (int i = 0; i < num_vars; i++) {
         if (strcmp(address_desc[i].var_name, var) == 0) {
             return i;
         }
     }
     
-    // Create new descriptor
     if (num_vars < MAX_VARS) {
         strcpy(address_desc[num_vars].var_name, var);
         address_desc[num_vars].in_memory = true;
@@ -114,9 +96,7 @@ int get_address_descriptor(char *var) {
     return -1;
 }
 
-/**
- * Update address descriptor for a variable
- */
+
 void update_address_descriptor(char *var, int reg_num, bool in_mem) {
     int desc_idx = get_address_descriptor(var);
     if (desc_idx != -1) {
@@ -125,9 +105,7 @@ void update_address_descriptor(char *var, int reg_num, bool in_mem) {
     }
 }
 
-/**
- * Set whether a variable is live
- */
+
 void set_variable_live(char *var, bool live) {
     int desc_idx = get_address_descriptor(var);
     if (desc_idx != -1) {
@@ -135,9 +113,7 @@ void set_variable_live(char *var, bool live) {
     }
 }
 
-/**
- * Check if a variable is live
- */
+
 bool is_variable_live(char *var) {
     int desc_idx = get_address_descriptor(var);
     if (desc_idx != -1) {
@@ -146,10 +122,7 @@ bool is_variable_live(char *var) {
     return false;
 }
 
-/**
- * Find which register contains a variable
- * Returns -1 if not in any register
- */
+
 int find_register(char *var) {
     if (!var || var[0] == '\0') return -1;
     
@@ -161,34 +134,28 @@ int find_register(char *var) {
     return -1;
 }
 
-/**
- * Check if a register is free
- */
 bool is_register_free(int reg_num) {
     return (reg_num >= 0 && reg_num < MAX_REGS && registers[reg_num].is_free);
 }
 
-/**
- * Mark a register as dirty (modified, needs to be stored back)
- */
+
 void mark_register_dirty(int reg_num) {
     if (reg_num >= 0 && reg_num < MAX_REGS) {
         registers[reg_num].dirty = true;
     }
 }
 
-/**
- * Mark a register as clean (value in sync with memory)
- */
+
 void mark_register_clean(int reg_num) {
     if (reg_num >= 0 && reg_num < MAX_REGS) {
         registers[reg_num].dirty = false;
     }
 }
 
-/**
- * Spill (store) a register's value back to memory
- */
+
+
+
+
 void spill_register(int reg_num) {
     if (reg_num < 0 || reg_num >= MAX_REGS) return;
     
@@ -204,9 +171,10 @@ void spill_register(int reg_num) {
     }
 }
 
-/**
- * Free a register
- */
+
+
+
+
 void free_register(int reg_num) {
     if (reg_num >= 0 && reg_num < MAX_REGS) {
         spill_register(reg_num);
@@ -216,10 +184,7 @@ void free_register(int reg_num) {
     }
 }
 
-/**
- * Get a register for a variable (implements getReg algorithm)
- * Based on Aho-Sethi-Ullman algorithm pp 535-541
- */
+
 int get_reg(char *var, char *arg1, char *arg2, int next_use[]) {
     int reg_num = -1;
     
@@ -240,11 +205,6 @@ int get_reg(char *var, char *arg1, char *arg2, int next_use[]) {
         }
     }
     
-    // No free registers, need to spill one
-    // Strategy: Spill register with variable that is:
-    // 1. Not used in current instruction (not arg1 or arg2)
-    // 2. Dead (not live after this instruction)
-    // 3. Or has farthest next use
     
     int best_reg = -1;
     int best_priority = -1;
@@ -298,17 +258,16 @@ int get_reg(char *var, char *arg1, char *arg2, int next_use[]) {
     return 0;
 }
 
-/**
- * Emit assembly instruction to output file
- */
+
 void emit(char *instruction) {
     fprintf(output_file, "%s\n", instruction);
     printf("%s\n", instruction);
 }
 
-/**
- * Emit a load instruction: LD Rx, var
- */
+
+
+
+
 void emit_load(int reg_num, char *var) {
     char instr[256];
     
@@ -325,9 +284,7 @@ void emit_load(int reg_num, char *var) {
     emit(instr);
 }
 
-/**
- * Emit a store instruction: ST var, Rx
- */
+
 void emit_store(char *var, int reg_num) {
     char instr[256];
     sprintf(instr, "    ST %s, %s         ; Store %s to %s", 
@@ -335,9 +292,7 @@ void emit_store(char *var, int reg_num) {
     emit(instr);
 }
 
-/**
- * Emit arithmetic operation instruction
- */
+
 void emit_arithmetic_op(char *op, int dest_reg, int src1_reg, int src2_reg) {
     char instr[256];
     char op_upper[16];
@@ -361,9 +316,7 @@ void emit_arithmetic_op(char *op, int dest_reg, int src1_reg, int src2_reg) {
     emit(instr);
 }
 
-/**
- * Generate code for assignment: result = arg1
- */
+
 void gen_assignment(char *result, char *arg1) {
     char instr[256];
     
@@ -393,9 +346,7 @@ void gen_assignment(char *result, char *arg1) {
     update_address_descriptor(result, result_reg, false);
 }
 
-/**
- * Generate code for arithmetic operation: result = arg1 op arg2
- */
+
 void gen_arithmetic(char *op, char *result, char *arg1, char *arg2) {
     int arg1_reg, arg2_reg, result_reg;
     
@@ -427,9 +378,7 @@ void gen_arithmetic(char *op, char *result, char *arg1, char *arg2) {
     update_address_descriptor(result, result_reg, false);
 }
 
-/**
- * Generate code for unary operation: result = op arg1
- */
+
 void gen_unary(char *op, char *result, char *arg1) {
     char instr[256];
     int arg1_reg, result_reg;
@@ -460,18 +409,14 @@ void gen_unary(char *op, char *result, char *arg1) {
     update_address_descriptor(result, result_reg, false);
 }
 
-/**
- * Generate label
- */
+
 void gen_label(char *label) {
     char instr[256];
     sprintf(instr, "%s:", label);
     emit(instr);
 }
 
-/**
- * Generate conditional jump: ifFalse condition goto label
- */
+
 void gen_conditional_jump(char *condition, char *label) {
     char instr[256];
     int cond_reg;
@@ -494,9 +439,7 @@ void gen_conditional_jump(char *condition, char *label) {
     emit(instr);
 }
 
-/**
- * Generate unconditional jump: goto label
- */
+
 void gen_unconditional_jump(char *label) {
     char instr[256];
     sprintf(instr, "    JMP %s            ; Unconditional jump to %s", 
@@ -504,9 +447,7 @@ void gen_unconditional_jump(char *label) {
     emit(instr);
 }
 
-/**
- * Main code generation dispatcher
- */
+
 void generate_code(char *op, char *arg1, char *arg2, char *result) {
     fprintf(output_file, "\n; %s %s, %s, %s\n", op, arg1, arg2, result);
     
@@ -537,9 +478,7 @@ void generate_code(char *op, char *arg1, char *arg2, char *result) {
     }
 }
 
-/**
- * Print register state for debugging
- */
+
 void print_register_state() {
     printf("\n=== Register State ===\n");
     for (int i = 0; i < MAX_REGS; i++) {
@@ -554,9 +493,7 @@ void print_register_state() {
     }
 }
 
-/**
- * Print address descriptors for debugging
- */
+
 void print_address_descriptors() {
     printf("\n=== Address Descriptors ===\n");
     for (int i = 0; i < num_vars; i++) {
