@@ -1,0 +1,25 @@
+=== THREE ADDRESS CODE (Quadruples) ===
+
+Label  Op           Arg1         Arg2         Result      
+------------------------------------------------------------
+0      =            10                        a           
+1      =            20                        b           
+2      *            b            2            T0          
+3      +            a            T0           T1          
+4      =            T1                        c           
+5      ifFalse      c                         L0          
+6      -            c            5            T2          
+7      =            T2                        result      
+8      goto                                   L1          
+9      label_end                              L0          
+10     =            0                         result      
+11     label_end                              L1          
+12     label_begin                            L2          
+13     ifFalse      a                         L3          
+14     -            a            1            T3          
+15     =            T3                        a           
+16     +            result       a            T4          
+17     =            T4                        result      
+18     goto                                   L2          
+19     label_end                              L3          
+------------------------------------------------------------
