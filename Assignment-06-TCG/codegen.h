@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define MAX_REGS 4          // Number of general-purpose registers (R0-R3)
+#define MAX_REGS 4          // Number of general-purpose registers (AX, BX, CX, DX)
 #define MAX_QUADS 1000      // Maximum three-address instructions
 #define MAX_NAME_LEN 32     // Maximum length of variable/temp names
 #define MAX_VARS 100        // Maximum number of variables
@@ -22,7 +22,7 @@ typedef struct {
 
 // Register descriptor 
 typedef struct {
-    char name[8];           // Register name (R0, R1, R2, R3)
+    char name[8];           // Register name (AX, BX, CX, DX)
     bool is_free;           // Is the register available
     char contains[MAX_NAME_LEN]; //  variable/temp is in this register
     bool dirty;             // Has value been modified (needs to be stored)

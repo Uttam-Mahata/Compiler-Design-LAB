@@ -1,41 +1,57 @@
 ; Assembly Code Generated from Three-Address Code
-; Target Machine: RISC-like with 4 registers (R0-R3)
-; Instruction Set: 8085/8086 compatible
+; Target Architecture: Intel 8086
+; Instruction Set: x86 (8086 compatible)
+; Registers used: AX, BX, CX, DX (16-bit general purpose)
 
+.MODEL SMALL
+.STACK 100h
+
+.DATA
+    ; Variable declarations will be added here
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
+
+    ; Generated code starts here
 
 ; Three-Address Code to Assembly Translation
 ; Total Instructions: 20
 
 
 ; = 10, , a
-    LD R0, #10        ; Load constant 10
+    MOV AX, 10        ; Load constant 10
 
 ; = 20, , b
-    LD R1, #20        ; Load constant 20
+    MOV BX, 20        ; Load constant 20
 
 ; * b, 2, T0
-    LD R2, #2        ; Load constant 2
-    * R3, R1, R2      ; R3 = R1 * R2
+    MOV CX, 2        ; Load constant 2
+    MOV DX, BX        ; Copy operand
+    IMUL DX, CX       ; DX = BX * CX
 
 ; + a, T0, T1
-    + R2, R0, R3      ; R2 = R0 + R3
+    MOV CX, AX        ; Copy operand
+    ADD CX, DX        ; CX = AX + DX
 
 ; = T1, , c
-    ST T0, R3         ; Store R3 to T0
-    LD R3, R2         ; c = T1
+    MOV [T0], DX      ; Store DX to T0
+    MOV DX, CX        ; c = T1
 
 ; ifFalse c, , L0
-    CMP R3, #0        ; Compare c with 0
+    CMP DX, 0         ; Compare c with 0
     JE L0             ; Jump to L0 if equal (false)
 
 ; - c, 5, T2
-    ST T1, R2         ; Store R2 to T1
-    LD R2, #5        ; Load constant 5
-    ST a, R0         ; Store R0 to a
-    - R0, R3, R2      ; R0 = R3 - R2
+    MOV [T1], CX      ; Store CX to T1
+    MOV CX, 5        ; Load constant 5
+    MOV [a], AX      ; Store AX to a
+    MOV AX, DX        ; Copy operand
+    SUB AX, CX        ; AX = DX - CX
 
 ; = T2, , result
-    LD R2, R0         ; result = T2
+    MOV CX, AX        ; result = T2
 
 ; goto , , L1
     JMP L1            ; Unconditional jump to L1
@@ -44,7 +60,7 @@
 L0:
 
 ; = 0, , result
-    LD R2, #0        ; Load constant 0
+    MOV CX, 0        ; Load constant 0
 
 ; label_end , , L1
 L1:
@@ -53,27 +69,29 @@ L1:
 L2:
 
 ; ifFalse a, , L3
-    ST T2, R0         ; Store R0 to T2
-    LD R0, a         ; Load a into R0
-    CMP R0, #0        ; Compare a with 0
+    MOV [T2], AX      ; Store AX to T2
+    MOV AX, [a]      ; Load a into AX
+    CMP AX, 0         ; Compare a with 0
     JE L3             ; Jump to L3 if equal (false)
 
 ; - a, 1, T3
-    ST b, R1         ; Store R1 to b
-    LD R1, #1        ; Load constant 1
-    ST result, R2         ; Store R2 to result
-    - R2, R0, R1      ; R2 = R0 - R1
+    MOV [b], BX      ; Store BX to b
+    MOV BX, 1        ; Load constant 1
+    MOV [result], CX      ; Store CX to result
+    MOV CX, AX        ; Copy operand
+    SUB CX, BX        ; CX = AX - BX
 
 ; = T3, , a
-    LD R0, R2         ; a = T3
+    MOV AX, CX        ; a = T3
 
 ; + result, a, T4
-    LD R1, result         ; Load result into R1
-    ST T3, R2         ; Store R2 to T3
-    + R2, R1, R0      ; R2 = R1 + R0
+    MOV BX, [result]      ; Load result into BX
+    MOV [T3], CX      ; Store CX to T3
+    MOV CX, BX        ; Copy operand
+    ADD CX, AX        ; CX = BX + AX
 
 ; = T4, , result
-    LD R1, R2         ; result = T4
+    MOV BX, CX        ; result = T4
 
 ; goto , , L2
     JMP L2            ; Unconditional jump to L2
@@ -82,9 +100,13 @@ L2:
 L3:
 
 ; Store all modified values back to memory
-    ST a, R0         ; Store R0 to a
-    ST result, R1         ; Store R1 to result
-    ST T4, R2         ; Store R2 to T4
-    ST c, R3         ; Store R3 to c
+    MOV [a], AX      ; Store AX to a
+    MOV [result], BX      ; Store BX to result
+    MOV [T4], CX      ; Store CX to T4
+    MOV [c], DX      ; Store DX to c
 
-HALT
+    ; Program termination
+    MOV AH, 4Ch      ; DOS exit function
+    INT 21h          ; Call DOS interrupt
+MAIN ENDP
+END MAIN

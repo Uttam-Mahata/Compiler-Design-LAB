@@ -25,13 +25,29 @@ void init_code_generator() {
     }
     
     fprintf(output_file, "; Assembly Code Generated from Three-Address Code\n");
-    fprintf(output_file, "; Target Machine: RISC-like with 4 registers (R0-R3)\n");
-    fprintf(output_file, "; Instruction Set: 8085/8086 compatible\n\n");
+    fprintf(output_file, "; Target Architecture: Intel 8086\n");
+    fprintf(output_file, "; Instruction Set: x86 (8086 compatible)\n");
+    fprintf(output_file, "; Registers used: AX, BX, CX, DX (16-bit general purpose)\n\n");
+    fprintf(output_file, ".MODEL SMALL\n");
+    fprintf(output_file, ".STACK 100h\n\n");
+    fprintf(output_file, ".DATA\n");
+    fprintf(output_file, "    ; Variable declarations will be added here\n\n");
+    fprintf(output_file, ".CODE\n");
+    fprintf(output_file, "MAIN PROC\n");
+    fprintf(output_file, "    MOV AX, @DATA\n");
+    fprintf(output_file, "    MOV DS, AX\n\n");
+    fprintf(output_file, "    ; Generated code starts here\n");
 }
 
 
 void close_code_generator() {
-    fprintf(output_file, "\nHALT\n");
+    // Add program termination
+    fprintf(output_file, "\n    ; Program termination\n");
+    fprintf(output_file, "    MOV AH, 4Ch      ; DOS exit function\n");
+    fprintf(output_file, "    INT 21h          ; Call DOS interrupt\n");
+    fprintf(output_file, "MAIN ENDP\n");
+    fprintf(output_file, "END MAIN\n");
+    
     fclose(output_file);
     printf("\n=== Assembly code generated in 'assembly_code.asm' ===\n");
 }
@@ -40,8 +56,10 @@ void close_code_generator() {
 
 
 void init_registers() {
+    // Using 8086 16-bit registers: AX, BX, CX, DX
+    const char *reg_names[] = {"AX", "BX", "CX", "DX"};
     for (int i = 0; i < MAX_REGS; i++) {
-        sprintf(registers[i].name, "R%d", i);
+        strcpy(registers[i].name, reg_names[i]);
         registers[i].is_free = true;
         registers[i].contains[0] = '\0';
         registers[i].dirty = false;
@@ -272,12 +290,12 @@ void emit_load(int reg_num, char *var) {
     char instr[256];
     
     if (is_constant(var)) {
-        // Load immediate constant
-        sprintf(instr, "    LD %s, #%s        ; Load constant %s", 
+        // Load immediate constant (8086 syntax)
+        sprintf(instr, "    MOV %s, %s        ; Load constant %s", 
                 registers[reg_num].name, var, var);
     } else {
-        // Load from memory location
-        sprintf(instr, "    LD %s, %s         ; Load %s into %s", 
+        // Load from memory location (8086 syntax with brackets)
+        sprintf(instr, "    MOV %s, [%s]      ; Load %s into %s", 
                 registers[reg_num].name, var, var, registers[reg_num].name);
     }
     
@@ -287,7 +305,8 @@ void emit_load(int reg_num, char *var) {
 
 void emit_store(char *var, int reg_num) {
     char instr[256];
-    sprintf(instr, "    ST %s, %s         ; Store %s to %s", 
+    // 8086 syntax: MOV destination, source
+    sprintf(instr, "    MOV [%s], %s      ; Store %s to %s", 
             var, registers[reg_num].name, registers[reg_num].name, var);
     emit(instr);
 }
@@ -295,23 +314,50 @@ void emit_store(char *var, int reg_num) {
 
 void emit_arithmetic_op(char *op, int dest_reg, int src1_reg, int src2_reg) {
     char instr[256];
-    char op_upper[16];
     
-    // Convert operator to instruction mnemonic
-    strcpy(op_upper, op);
-    for (int i = 0; op_upper[i]; i++) {
-        op_upper[i] = toupper(op_upper[i]);
+    // For 8086, we need to handle arithmetic operations differently
+    // 8086 uses two-operand format: OP dest, source
+    // Result goes into dest, so we need: dest = dest OP source
+    
+    // First, move src1 to dest if they're different
+    if (dest_reg != src1_reg) {
+        sprintf(instr, "    MOV %s, %s        ; Copy operand", 
+                registers[dest_reg].name, registers[src1_reg].name);
+        emit(instr);
     }
     
-    sprintf(instr, "    %s %s, %s, %s      ; %s = %s %s %s", 
-            op_upper, 
-            registers[dest_reg].name,
-            registers[src1_reg].name,
-            registers[src2_reg].name,
-            registers[dest_reg].name,
-            registers[src1_reg].name,
-            op,
-            registers[src2_reg].name);
+    // Then apply the operation
+    if (strcmp(op, "+") == 0) {
+        sprintf(instr, "    ADD %s, %s        ; %s = %s + %s", 
+                registers[dest_reg].name, registers[src2_reg].name,
+                registers[dest_reg].name, registers[src1_reg].name, registers[src2_reg].name);
+    } else if (strcmp(op, "-") == 0) {
+        sprintf(instr, "    SUB %s, %s        ; %s = %s - %s", 
+                registers[dest_reg].name, registers[src2_reg].name,
+                registers[dest_reg].name, registers[src1_reg].name, registers[src2_reg].name);
+    } else if (strcmp(op, "*") == 0) {
+        // For MUL in 8086, result goes in AX (or DX:AX for 16-bit)
+        // We'll use IMUL which allows: IMUL dest, source
+        sprintf(instr, "    IMUL %s, %s       ; %s = %s * %s", 
+                registers[dest_reg].name, registers[src2_reg].name,
+                registers[dest_reg].name, registers[src1_reg].name, registers[src2_reg].name);
+    } else if (strcmp(op, "/") == 0) {
+        // DIV is complex in 8086 - requires AX/DX setup
+        sprintf(instr, "    ; DIV operation - requires special handling");
+        emit(instr);
+        sprintf(instr, "    MOV AX, %s", registers[src1_reg].name);
+        emit(instr);
+        sprintf(instr, "    CWD               ; Sign extend AX to DX:AX");
+        emit(instr);
+        sprintf(instr, "    IDIV %s           ; AX = DX:AX / operand", registers[src2_reg].name);
+        emit(instr);
+        if (dest_reg != 0) { // 0 is AX
+            sprintf(instr, "    MOV %s, AX        ; Move quotient to result", 
+                    registers[dest_reg].name);
+        } else {
+            return; // Result already in AX
+        }
+    }
     
     emit(instr);
 }
@@ -327,9 +373,9 @@ void gen_assignment(char *result, char *arg1) {
     int arg1_reg = find_register(arg1);
     
     if (arg1_reg != -1) {
-        // arg1 is in a register, do register-to-register copy
+        // arg1 is in a register, do register-to-register copy (8086 syntax)
         if (arg1_reg != result_reg) {
-            sprintf(instr, "    LD %s, %s         ; %s = %s", 
+            sprintf(instr, "    MOV %s, %s        ; %s = %s", 
                     registers[result_reg].name, 
                     registers[arg1_reg].name,
                     result, arg1);
@@ -394,11 +440,18 @@ void gen_unary(char *op, char *result, char *arg1) {
     // Get register for result
     result_reg = get_reg(result, arg1, NULL, NULL);
     
-    // Generate unary operation
+    // Generate unary operation (8086 syntax)
     if (strcmp(op, "uminus") == 0) {
-        sprintf(instr, "    NEG %s, %s         ; %s = -%s", 
+        // First copy if different registers
+        if (result_reg != arg1_reg) {
+            sprintf(instr, "    MOV %s, %s        ; Copy operand", 
+                    registers[result_reg].name,
+                    registers[arg1_reg].name);
+            emit(instr);
+        }
+        // Then negate (8086 NEG is single operand)
+        sprintf(instr, "    NEG %s            ; %s = -%s", 
                 registers[result_reg].name,
-                registers[arg1_reg].name,
                 result, arg1);
         emit(instr);
     }
@@ -429,8 +482,8 @@ void gen_conditional_jump(char *condition, char *label) {
         strcpy(registers[cond_reg].contains, condition);
     }
     
-    // Generate conditional branch
-    sprintf(instr, "    CMP %s, #0        ; Compare %s with 0", 
+    // Generate conditional branch (8086 syntax)
+    sprintf(instr, "    CMP %s, 0         ; Compare %s with 0", 
             registers[cond_reg].name, condition);
     emit(instr);
     
@@ -442,6 +495,7 @@ void gen_conditional_jump(char *condition, char *label) {
 
 void gen_unconditional_jump(char *label) {
     char instr[256];
+    // 8086 syntax is the same for JMP
     sprintf(instr, "    JMP %s            ; Unconditional jump to %s", 
             label, label);
     emit(instr);
