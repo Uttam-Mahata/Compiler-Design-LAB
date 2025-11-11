@@ -71,37 +71,50 @@ This assignment implements a **Target Code Generator** that reads **three-addres
 ## Target Machine Model
 
 ### Instruction Set
-The target machine follows a RISC-like architecture with the following instructions:
+The target machine follows the **Intel 8086 architecture** with the following instructions:
 
-#### Load/Store Operations
+#### Data Transfer Operations
 ```assembly
-LD Rx, #constant    ; Load immediate constant into register Rx
-LD Rx, var          ; Load variable from memory into register Rx
-LD Rx, Ry           ; Copy register Ry to register Rx
-ST var, Rx          ; Store register Rx to memory location var
+MOV dest, source    ; Move data: dest = source
+                    ; - MOV AX, 10       (immediate to register)
+                    ; - MOV AX, [var]    (memory to register)
+                    ; - MOV [var], AX    (register to memory)
+                    ; - MOV AX, BX       (register to register)
 ```
 
 #### Arithmetic Operations
 ```assembly
-ADD Rx, Ry, Rz      ; Rx = Ry + Rz
-SUB Rx, Ry, Rz      ; Rx = Ry - Rz
-MUL Rx, Ry, Rz      ; Rx = Ry * Rz
-DIV Rx, Ry, Rz      ; Rx = Ry / Rz
-NEG Rx, Ry          ; Rx = -Ry (unary minus)
+ADD dest, source    ; dest = dest + source
+SUB dest, source    ; dest = dest - source
+IMUL dest, source   ; dest = dest * source (signed multiply)
+IDIV source         ; AX = DX:AX / source (signed divide)
+NEG dest            ; dest = -dest (two's complement)
+INC dest            ; dest = dest + 1
+DEC dest            ; dest = dest - 1
 ```
 
-#### Control Flow
+#### Comparison and Control Flow
 ```assembly
-CMP Rx, #constant   ; Compare register with constant
+CMP operand1, operand2  ; Compare (sets flags)
 JE label            ; Jump if equal (zero flag set)
+JNE label           ; Jump if not equal
 JMP label           ; Unconditional jump
 label:              ; Label declaration
-HALT                ; Halt execution
+```
+
+#### Program Structure
+```assembly
+.MODEL SMALL        ; Memory model
+.STACK 100h         ; Stack size
+.DATA               ; Data segment
+.CODE               ; Code segment
+INT 21h             ; DOS interrupt (program termination)
 ```
 
 ### Registers
-- **R0, R1, R2, R3**: General-purpose registers
-- **4 registers total** - simulates resource-constrained environment
+- **AX, BX, CX, DX**: 16-bit general-purpose registers
+- **4 registers total** - standard 8086 register subset
+- Each register can be split into high/low bytes (AH/AL, BH/BL, etc.)
 
 ## Algorithm: Register Allocation (getReg)
 
@@ -200,25 +213,42 @@ typedef struct {
 3  =  T0    c
 ```
 
-**Generated Assembly:**
+**Generated 8086 Assembly:**
 ```assembly
+.MODEL SMALL
+.STACK 100h
+
+.DATA
+    ; Variable declarations
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
+
 ; = 10, , a
-    LD R0, #10        ; Load constant 10
-    ST a, R0          ; Store R0 to a
+    MOV AX, 10        ; Load constant 10
 
 ; = 20, , b
-    LD R1, #20        ; Load constant 20
-    ST b, R1          ; Store R1 to b
+    MOV BX, 20        ; Load constant 20
 
 ; + a, b, T0
-    LD R0, a          ; Load a into R0
-    LD R1, b          ; Load b into R1
-    ADD R2, R0, R1    ; R2 = R0 + R1
-    ST T0, R2         ; Store R2 to T0
+    MOV CX, AX        ; Copy operand
+    ADD CX, BX        ; CX = AX + BX
 
 ; = T0, , c
-    LD R2, T0         ; Load T0
-    ST c, R2          ; Store R2 to c
+    MOV DX, CX        ; c = T0
+
+; Store all values back to memory
+    MOV [a], AX       ; Store AX to a
+    MOV [b], BX       ; Store BX to b
+    MOV [T0], CX      ; Store CX to T0
+    MOV [c], DX       ; Store DX to c
+
+    MOV AH, 4Ch       ; DOS exit
+    INT 21h
+MAIN ENDP
+END MAIN
 ```
 
 ### Example 2: Arithmetic with Unary Minus
