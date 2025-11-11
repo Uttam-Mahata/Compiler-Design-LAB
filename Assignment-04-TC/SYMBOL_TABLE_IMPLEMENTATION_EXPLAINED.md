@@ -143,7 +143,7 @@ typedef struct symbol_node {
 graph LR
     subgraph "Symbol Node Structure"
         SN[Symbol Node]
-        SN --> NAME[name: char[32]]
+        SN --> NAME["name: char array 32"]
         SN --> TYPE[type: data_type_t]
         SN --> SCOPE[scope: scope_type_t]
         SN --> LEVEL[scope_level: int]
@@ -197,11 +197,11 @@ typedef struct {
 ```mermaid
 graph TB
     subgraph "Hash Table Array"
-        HT0["Bucket[0]"] -.-> NULL0[NULL]
-        HT1["Bucket[1]"] --> X[Symbol 'x']
-        HT2["Bucket[2]"] --> Y[Symbol 'y']
+        HT0["Bucket 0"] -.-> NULL0[NULL]
+        HT1["Bucket 1"] --> X[Symbol 'x']
+        HT2["Bucket 2"] --> Y[Symbol 'y']
         HT3["..."]
-        HT210["Bucket[210]"] -.-> NULL210[NULL]
+        HT210["Bucket 210"] -.-> NULL210[NULL]
     end
     
     subgraph "Hash Chains (hash_next)"
@@ -489,12 +489,12 @@ int add_symbol_with_attrs(char* name, data_type_t type, scope_type_t scope, int 
 ```mermaid
 graph LR
     subgraph "Before Insertion"
-        HT1["hash_table[134]"] --> OLD1[oldSymbol]
+        HT1["hash_table 134"] --> OLD1[oldSymbol]
         OLD1 --> NULL1[NULL]
     end
     
     subgraph "After Insertion"
-        HT2["hash_table[134]"] --> NEW["var<br/>(new_node)"]
+        HT2["hash_table 134"] --> NEW["var<br/>new_node"]
         NEW --> |hash_next| OLD2[oldSymbol]
         OLD2 --> NULL2[NULL]
     end
@@ -832,13 +832,13 @@ void exit_scope() {
 ```mermaid
 graph LR
     subgraph "Before"
-        B1["bucket[134]"] --> CUR1[current]
+        B1["bucket 134"] --> CUR1[current]
         CUR1 --> NEXT1[next]
         NEXT1 --> NULL1[NULL]
     end
     
     subgraph "After"
-        B2["bucket[134]"] --> NEXT2[next]
+        B2["bucket 134"] --> NEXT2[next]
         NEXT2 --> NULL2[NULL]
         CUR2[current] -.-> |deleted| X1[X]
     end
@@ -854,13 +854,13 @@ graph LR
 ```mermaid
 graph LR
     subgraph "Before"
-        B1["bucket[134]"] --> PREV1[prev]
+        B1["bucket 134"] --> PREV1[prev]
         PREV1 --> CUR1[current]
         CUR1 --> NEXT1[next]
     end
     
     subgraph "After"
-        B2["bucket[134]"] --> PREV2[prev]
+        B2["bucket 134"] --> PREV2[prev]
         PREV2 --> NEXT2[next]
         CUR2[current] -.-> |deleted| X1[X]
     end
@@ -1275,34 +1275,30 @@ is_numeric_type(TYPE_VOID);       // Returns 0 (can't do math on void)
 
 ```mermaid
 graph TB
-    subgraph "Hash Table Performance"
-        HT[Hash Table<br/>Size: 211]
+    subgraph "Good Distribution"
+        B1[Bucket 1] --> S1[Symbol A]
+        B2[Bucket 2] --> S2[Symbol B]
+        B3[Bucket 3] --> S3[Symbol C]
+        B4[Bucket 4] --> S4[Symbol D]
+        S1 --> S1N[Symbol E]
         
-        subgraph "Good Distribution"
-            B1[Bucket] --> S1[Symbol]
-            B2[Bucket] --> S2[Symbol]
-            B3[Bucket] --> S3[Symbol]
-            B4[Bucket] --> S4[Symbol]
-            S1 --> S1N[Symbol]
-            
-            note1[Average chain: 1-2 nodes<br/>O1 lookup]
-        end
-        
-        subgraph "Bad Distribution (Worst Case)"
-            BB1[Bucket] -.-> NULL
-            BB2[Bucket] --> SS1[Symbol]
-            SS1 --> SS2[Symbol]
-            SS1 --> SS3[Symbol]
-            SS1 --> SS4[Symbol]
-            SS1 --> SS5[...]
-            BB3[Bucket] -.-> NULL
-            
-            note2[All in one bucket<br/>On lookup]
-        end
+        GD[Average chain: 1-2 nodes<br/>O of 1 lookup]
     end
     
-    style note1 fill:#c8e6c9
-    style note2 fill:#ffccbc
+    subgraph "Bad Distribution Worst Case"
+        BB1[Bucket 1] -.-> NULL1[NULL]
+        BB2[Bucket 2] --> SS1[Symbol]
+        SS1 --> SS2[Symbol]
+        SS2 --> SS3[Symbol]
+        SS3 --> SS4[Symbol]
+        SS4 --> SS5[...]
+        BB3[Bucket 3] -.-> NULL2[NULL]
+        
+        BD[All in one bucket<br/>O of n lookup]
+    end
+    
+    style GD fill:#c8e6c9
+    style BD fill:#ffccbc
 ```
 
 **Advantages**:
@@ -1332,9 +1328,9 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Scope Stack"
-        S0["Level 0 (Global)<br/>x=1"]
-        S1["Level 1 (Block 1)<br/>x=2, y=5"]
-        S2["Level 2 (Block 2)<br/>z=10"]
+        S0["Level 0 Global<br/>x=1"]
+        S1["Level 1 Block 1<br/>x=2, y=5"]
+        S2["Level 2 Block 2<br/>z=10"]
         
         S2 --> |exit_scope| S1
         S1 --> |exit_scope| S0
@@ -1343,10 +1339,10 @@ graph TB
     end
     
     subgraph "Lookup Order"
-        L["lookup_symbol('x')"]
+        L["lookup_symbol x"]
         L --> |1. Try| L2["Level 2: Not found"]
-        L2 --> |2. Try| L1["Level 1: FOUND x=2 ✓"]
-        L1 -.-> |3. Skip| L0["Level 0: x=1 (shadowed)"]
+        L2 --> |2. Try| L1["Level 1: FOUND x=2"]
+        L1 -.-> |3. Skip| L0["Level 0: x=1 shadowed"]
     end
     
     style L1 fill:#81c784
@@ -1657,37 +1653,51 @@ ptr   int*      0           1
 This symbol table implementation is a **production-quality** design suitable for a complete compiler. It combines:
 
 ```mermaid
-mindmap
-  root((Symbol Table<br/>Implementation))
-    Data Structures
-      Hash Table
-        211 Buckets
-        O(1) Lookup
-        Chaining
-      Doubly-Linked List
-        Insertion Order
-        Easy Traversal
-        O(1) Delete
-    Features
-      Scoping
-        Nested Scopes
-        Shadowing
-        Stack-based
-      Type System
-        Basic Types
-        Pointers
-        Arrays
-        Functions
-      Operations
-        Add Symbol
-        Lookup
-        Type Checking
-        Scope Enter/Exit
-    Quality
-      Fast O(1) avg
-      Memory Efficient
-      Robust Errors
-      Production Ready
+graph TB
+    ROOT["Symbol Table Implementation"]
+    
+    ROOT --> DS[Data Structures]
+    ROOT --> FEAT[Features]
+    ROOT --> QUAL[Quality]
+    
+    DS --> HT[Hash Table]
+    DS --> LL[Doubly-Linked List]
+    
+    HT --> HT1[211 Buckets]
+    HT --> HT2[O of 1 Lookup]
+    HT --> HT3[Chaining]
+    
+    LL --> LL1[Insertion Order]
+    LL --> LL2[Easy Traversal]
+    LL --> LL3[O of 1 Delete]
+    
+    FEAT --> SC[Scoping]
+    FEAT --> TS[Type System]
+    FEAT --> OP[Operations]
+    
+    SC --> SC1[Nested Scopes]
+    SC --> SC2[Shadowing]
+    SC --> SC3[Stack-based]
+    
+    TS --> TS1[Basic Types]
+    TS --> TS2[Pointers]
+    TS --> TS3[Arrays]
+    TS --> TS4[Functions]
+    
+    OP --> OP1[Add Symbol]
+    OP --> OP2[Lookup]
+    OP --> OP3[Type Checking]
+    OP --> OP4[Scope Enter/Exit]
+    
+    QUAL --> Q1[Fast O of 1 avg]
+    QUAL --> Q2[Memory Efficient]
+    QUAL --> Q3[Robust Errors]
+    QUAL --> Q4[Production Ready]
+    
+    style ROOT fill:#e1f5ff
+    style DS fill:#fff3e0
+    style FEAT fill:#f3e5f5
+    style QUAL fill:#c8e6c9
 ```
 
 ✅ **Fast lookup** via hashing  
