@@ -1,6 +1,9 @@
 # Compiler Design Lab
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Language: C](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Tools: Flex/Bison](https://img.shields.io/badge/Tools-Flex%2FBison-green.svg)](https://www.gnu.org/software/bison/)
+[![Docs: 83K+ words](https://img.shields.io/badge/Docs-83K%2B%20words-brightgreen.svg)](#documentation)
 
 A comprehensive collection of compiler construction assignments covering all major phases of compiler design, from lexical analysis to target code generation.
 
