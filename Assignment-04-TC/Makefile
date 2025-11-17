@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
 YACC = yacc
-LEX = lex
+LEX = flex
 
 # Target executable
 TARGET = symbol_parser
