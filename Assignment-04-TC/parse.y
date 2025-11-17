@@ -213,18 +213,83 @@ translation_unit: translation_unit external_declaration
                 | external_declaration
                 ;
 
-/* External declarations */
-external_declaration: global_variable_declaration
-                    | function_declaration
+/* External declarations - unified to avoid conflicts */
+external_declaration: data_type {
+                       current_type = token_to_type($1);
+                     } external_declaration_tail
                     ;
 
-/* Global variable declarations */
-global_variable_declaration: data_type {
-                              current_type = token_to_type($1);
-                            } init_declarator_list SEMICOLON_TOK
-                            { print_syntax_success("Global variable declaration"); }
-                           ;
+external_declaration_tail: ID_TOK {
+                            if (!add_symbol($1, current_type, SCOPE_GLOBAL, line_number, 1)) {
+                                error_count++;
+                            }
+                            free($1);
+                          } LPAREN_TOK opt_parameter_list RPAREN_TOK function_tail
+                          {
+                            print_syntax_success("Function declaration");
+                          }
+                        | global_declarator_list SEMICOLON_TOK
+                          {
+                            print_syntax_success("Global variable declaration");
+                          }
+                        ;
 
+opt_parameter_list: parameter_list
+                  | /* empty */
+                  ;
+
+global_declarator_list: global_declarator_list COMMA_TOK global_declarator
+                       | global_declarator
+                       ;
+
+global_declarator: ID_TOK
+                  {
+                    if (!add_symbol($1, current_type, SCOPE_GLOBAL, line_number, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                  }
+                 | ID_TOK ASSIGN_TOK assignment_expr
+                  {
+                    if (!add_symbol($1, current_type, SCOPE_GLOBAL, line_number, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                    print_syntax_success("Variable initialization");
+                  }
+                 | ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
+                  {
+                    data_type_t array_type;
+                    switch(current_type) {
+                        case TYPE_INT: array_type = TYPE_INT_ARRAY; break;
+                        case TYPE_FLOAT: array_type = TYPE_FLOAT_ARRAY; break;
+                        case TYPE_CHAR: array_type = TYPE_CHAR_ARRAY; break;
+                        default: array_type = current_type; break;
+                    }
+                    if (!add_symbol_with_attrs($1, array_type, SCOPE_GLOBAL,
+                                              line_number, 0, 1, $3, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                  }
+                 | ID_TOK LBRACKET_TOK RBRACKET_TOK
+                  {
+                    data_type_t array_type;
+                    switch(current_type) {
+                        case TYPE_INT: array_type = TYPE_INT_ARRAY; break;
+                        case TYPE_FLOAT: array_type = TYPE_FLOAT_ARRAY; break;
+                        case TYPE_CHAR: array_type = TYPE_CHAR_ARRAY; break;
+                        default: array_type = current_type; break;
+                    }
+                    if (!add_symbol_with_attrs($1, array_type, SCOPE_GLOBAL,
+                                              line_number, 0, 1, 0, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                  }
+                 ;
+
+/* Declarators for local variables */
 init_declarator_list: init_declarator_list COMMA_TOK init_declarator
                     | init_declarator
                     ;
@@ -272,27 +337,6 @@ declarator: ID_TOK
              free($1);
            }
          ;
-
-/* Function declarations (both prototypes and definitions) */
-function_declaration: data_type ID_TOK {
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                           error_count++;
-                       }
-                       free($2);
-                     } LPAREN_TOK RPAREN_TOK function_tail
-                     {
-                       print_syntax_success("Function (no parameters)");
-                     }
-                   | data_type ID_TOK {
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                           error_count++;
-                       }
-                       free($2);
-                     } LPAREN_TOK parameter_list RPAREN_TOK function_tail
-                     {
-                       print_syntax_success("Function (with parameters)");
-                     }
-                   ;
 
 function_tail: SEMICOLON_TOK
                { /* Function prototype */ }
