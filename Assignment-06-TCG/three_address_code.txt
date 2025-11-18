@@ -1,0 +1,21 @@
+=== THREE ADDRESS CODE (Quadruples) ===
+
+Label  Op           Arg1         Arg2         Result      
+------------------------------------------------------------
+0      =            10                        a           
+1      =            20                        b           
+2      *            b            2            T0          
+3      +            a            T0           T1          
+4      =            T1                        c           
+5      -            c            5            T2          
+6      =            T2                        result      
+7      =            0                         result      
+8      -            a            1            T3          
+9      =            T3                        a           
+10     +            result       a            T4          
+11     =            T4                        result      
+12     +            result       b            T5          
+13     =            T5                        c           
+
+------------------------------------------------------------
+Total quadruples generated: 14
