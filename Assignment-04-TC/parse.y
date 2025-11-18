@@ -224,6 +224,7 @@ external_declaration_tail: ID_TOK {
                                 error_count++;
                             }
                             free($1);
+                            enter_scope(); // Enter function scope before parameters
                           } LPAREN_TOK opt_parameter_list RPAREN_TOK function_tail
                           {
                             print_syntax_success("Function declaration");
@@ -339,10 +340,13 @@ declarator: ID_TOK
          ;
 
 function_tail: SEMICOLON_TOK
-               { /* Function prototype */ }
-             | { enter_scope(); } compound_statement
                {
-                 /* Function definition */
+                 /* Function prototype - exit the scope entered for parameters */
+                 exit_scope();
+               }
+             | compound_statement
+               {
+                 /* Function definition - exit the scope entered for parameters */
                  exit_scope();
                }
              ;
@@ -809,4 +813,8 @@ int main() {
 void yyerror(char *s) {
     printf("SYNTAX ERROR (Line %d): %s near '%s'\n", line_number, s, yytext);
     error_count++;
+}
+
+int yywrap() {
+    return 1;
 }
