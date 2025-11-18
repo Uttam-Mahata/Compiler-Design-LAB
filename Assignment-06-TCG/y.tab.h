@@ -200,22 +200,9 @@ union YYSTYPE
     struct {
         data_type_t type;
         int is_lvalue;
-        char* place;  // For holding temporary variable or identifier name
     } expr_info;
-    struct {
-        int next_list[100];
-        int next_count;
-        int true_list[100];
-        int true_count;
-        int false_list[100];
-        int false_count;
-    } stmt_info;
-    struct {
-        char* label;
-        int quad;
-    } marker_info;
 
-#line 219 "y.tab.h"
+#line 206 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

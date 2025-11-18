@@ -3,7 +3,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include "symbol_table.h"
 #include "y.tab.h"
 
 #define MAX_ID_LENGTH 32

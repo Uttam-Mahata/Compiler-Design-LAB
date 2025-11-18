@@ -494,10 +494,10 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "lex.l"
 #line 2 "lex.l"
+#define _POSIX_C_SOURCE 200809L
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include "symbol_table.h"
 #include "y.tab.h"
 
 #define MAX_ID_LENGTH 32
