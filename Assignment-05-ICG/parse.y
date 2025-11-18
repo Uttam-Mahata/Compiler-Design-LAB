@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include "symbol_table.h"
+#include "icg.h"
 
 extern int line_number;
 extern int error_count;
@@ -140,6 +141,7 @@ void check_pointer_dereference(data_type_t type) {
     struct {
         data_type_t type;
         int is_lvalue;
+        char* place;  // For storing temporary/variable names in ICG
     } expr_info;
 }
 
@@ -488,6 +490,8 @@ assignment_expr: ternary_expr
                   check_assignment_type($1.type, $3.type, $1.is_lvalue);
                   $$.type = $1.type;
                   $$.is_lvalue = 0;
+                  $$.place = $1.place;
+                  gen("=", $3.place, "", $1.place);
                 }
                | unary_expr ADD_ASSIGN_TOK assignment_expr
                 {
@@ -644,11 +648,15 @@ additive_expr: multiplicative_expr
               {
                 $$.type = check_binary_op_type($1.type, $3.type, "+");
                 $$.is_lvalue = 0;
+                $$.place = new_temp();
+                gen("+", $1.place, $3.place, $$.place);
               }
              | additive_expr SUB_TOK multiplicative_expr
               {
                 $$.type = check_binary_op_type($1.type, $3.type, "-");
                 $$.is_lvalue = 0;
+                $$.place = new_temp();
+                gen("-", $1.place, $3.place, $$.place);
               }
              ;
 
@@ -658,16 +666,22 @@ multiplicative_expr: unary_expr
                     {
                       $$.type = check_binary_op_type($1.type, $3.type, "*");
                       $$.is_lvalue = 0;
+                      $$.place = new_temp();
+                      gen("*", $1.place, $3.place, $$.place);
                     }
                    | multiplicative_expr DIV_TOK unary_expr
                     {
                       $$.type = check_binary_op_type($1.type, $3.type, "/");
                       $$.is_lvalue = 0;
+                      $$.place = new_temp();
+                      gen("/", $1.place, $3.place, $$.place);
                     }
                    | multiplicative_expr MOD_TOK unary_expr
                     {
                       $$.type = check_binary_op_type($1.type, $3.type, "%");
                       $$.is_lvalue = 0;
+                      $$.place = new_temp();
+                      gen("%", $1.place, $3.place, $$.place);
                     }
                    ;
 
@@ -698,6 +712,8 @@ unary_expr: postfix_expr
              }
              $$.type = $2.type;
              $$.is_lvalue = 0;
+             $$.place = new_temp();
+             gen("uminus", $2.place, "", $$.place);
            }
           ;
 
@@ -763,10 +779,12 @@ primary_expr: ID_TOK
                    error_count++;
                    $$.type = TYPE_UNKNOWN;
                    $$.is_lvalue = 0;
+                   $$.place = strdup("");
                } else {
                    symbol_node_t* sym = lookup_symbol($1);
                    $$.type = sym->type;
                    $$.is_lvalue = !sym->is_array;
+                   $$.place = strdup($1);
                }
                free($1);
              }
@@ -774,17 +792,24 @@ primary_expr: ID_TOK
              {
                $$.type = TYPE_INT;
                $$.is_lvalue = 0;
+               char temp[20];
+               sprintf(temp, "%d", $1);
+               $$.place = strdup(temp);
              }
             | FLOATCONST_TOK
              {
                $$.type = TYPE_FLOAT;
                $$.is_lvalue = 0;
+               char temp[20];
+               sprintf(temp, "%f", $1);
+               $$.place = strdup(temp);
              }
             | STRING_TOK
              {
-               free($1);
                $$.type = TYPE_CHAR_PTR;
                $$.is_lvalue = 0;
+               $$.place = strdup($1);
+               free($1);
              }
             | LPAREN_TOK expression RPAREN_TOK
              {
@@ -810,6 +835,8 @@ int main() {
     printf("=== C COMPILER: LEXICAL + SYNTAX + TYPE CHECKING ===\n");
     printf("Parsing input...\n\n");
 
+    init_icg();  // Initialize ICG module
+
     if (yyparse() == 0) {
         printf("\n=== PARSING SUCCESSFUL ===\n");
         if (error_count == 0) {
@@ -821,6 +848,8 @@ int main() {
         printf("\n=== PARSING FAILED ===\n");
         printf("Errors found at line %d\n", line_number);
     }
+
+    close_icg();  // Close ICG module and write to file
 
     return 0;
 }
