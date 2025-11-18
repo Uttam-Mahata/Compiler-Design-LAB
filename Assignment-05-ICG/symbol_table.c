@@ -131,18 +131,15 @@ void enter_scope() {
 void exit_scope() {
     printf("SCOPE: Exiting scope level %d\n", sym_table.current_scope_level);
 
-    // Remove symbols from current scope - iterate carefully to avoid corruption
+    // Remove symbols from hash table only (keep in linked list for final display)
     symbol_node_t* current = sym_table.head;
-    symbol_node_t* next_node;
 
     while (current != NULL) {
-        next_node = current->next;  // Save next pointer before potential deletion
-
         if (current->scope_level == sym_table.current_scope_level) {
-            printf("SYMBOL TABLE: Removing '%s' from scope level %d\n",
+            printf("SYMBOL TABLE: Removing '%s' from hash lookup (scope level %d)\n",
                    current->name, current->scope_level);
 
-            // Remove from hash table - find it in the chain
+            // Remove from hash table only - find it in the chain
             unsigned int hash_index = hash(current->name);
             symbol_node_t* hash_current = sym_table.hash_table[hash_index];
             symbol_node_t* hash_prev = NULL;
@@ -162,26 +159,13 @@ void exit_scope() {
                 hash_current = hash_current->hash_next;
             }
 
-            // Remove from global linked list
-            if (current->prev != NULL) {
-                current->prev->next = current->next;
-            } else {
-                // This is the head
-                sym_table.head = current->next;
-            }
+            // Clear hash_next pointer since it's no longer in hash table
+            current->hash_next = NULL;
 
-            if (current->next != NULL) {
-                current->next->prev = current->prev;
-            } else {
-                // This is the tail
-                sym_table.tail = current->prev;
-            }
-
-            free(current);
-            sym_table.count--;
+            // Keep symbol in linked list for final display - do NOT remove or free
         }
 
-        current = next_node;
+        current = current->next;
     }
 
     if (sym_table.current_scope_level > 0) {
