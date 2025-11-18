@@ -494,6 +494,7 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "lex.l"
 #line 2 "lex.l"
+#define _POSIX_C_SOURCE 200809L
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -539,8 +540,8 @@ int check_spelling_error(char* word) {
     }
     return 0;
 }
-#line 543 "lex.yy.c"
 #line 544 "lex.yy.c"
+#line 545 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -757,9 +758,9 @@ YY_DECL
 		}
 
 	{
-#line 56 "lex.l"
+#line 57 "lex.l"
 
-#line 763 "lex.yy.c"
+#line 764 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -818,214 +819,214 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 57 "lex.l"
+#line 58 "lex.l"
 {/* Single-line comment - ignore */}
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 58 "lex.l"
+#line 59 "lex.l"
 {/* Multi-line comment - ignore */}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 59 "lex.l"
+#line 60 "lex.l"
 {return(BIT_LSHIFT_TOK);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 60 "lex.l"
+#line 61 "lex.l"
 {return(BIT_RSHIFT_TOK);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 61 "lex.l"
+#line 62 "lex.l"
 {return(ADD_ASSIGN_TOK);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 62 "lex.l"
+#line 63 "lex.l"
 {return(SUB_ASSIGN_TOK);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 63 "lex.l"
+#line 64 "lex.l"
 {return(MUL_ASSIGN_TOK);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 64 "lex.l"
+#line 65 "lex.l"
 {return(DIV_ASSIGN_TOK);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 65 "lex.l"
+#line 66 "lex.l"
 {return(MOD_ASSIGN_TOK);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 66 "lex.l"
+#line 67 "lex.l"
 {return(LE_TOK);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 67 "lex.l"
+#line 68 "lex.l"
 {return(GE_TOK);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 68 "lex.l"
+#line 69 "lex.l"
 {return(EQ_TOK);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 69 "lex.l"
+#line 70 "lex.l"
 {return(NEQ_TOK);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 70 "lex.l"
+#line 71 "lex.l"
 {return(AND_TOK);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 71 "lex.l"
+#line 72 "lex.l"
 {return(OR_TOK);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 72 "lex.l"
+#line 73 "lex.l"
 {return(INC_TOK);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 73 "lex.l"
+#line 74 "lex.l"
 {return(DEC_TOK);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 74 "lex.l"
+#line 75 "lex.l"
 {return(ADD_TOK);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 75 "lex.l"
+#line 76 "lex.l"
 {return(SUB_TOK);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 76 "lex.l"
+#line 77 "lex.l"
 {return(MUL_TOK);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 77 "lex.l"
+#line 78 "lex.l"
 {return(DIV_TOK);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 78 "lex.l"
+#line 79 "lex.l"
 {return(MOD_TOK);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 79 "lex.l"
+#line 80 "lex.l"
 {return(LT_TOK);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 80 "lex.l"
+#line 81 "lex.l"
 {return(GT_TOK);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 81 "lex.l"
+#line 82 "lex.l"
 {return(NOT_TOK);}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 82 "lex.l"
+#line 83 "lex.l"
 {return(BIT_AND_TOK);}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 83 "lex.l"
+#line 84 "lex.l"
 {return(BIT_OR_TOK);}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 84 "lex.l"
+#line 85 "lex.l"
 {return(BIT_XOR_TOK);}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 85 "lex.l"
+#line 86 "lex.l"
 {return(BIT_NOT_TOK);}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 86 "lex.l"
+#line 87 "lex.l"
 {return(ASSIGN_TOK);}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 87 "lex.l"
+#line 88 "lex.l"
 {return(TERNARY_TOK);}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 88 "lex.l"
+#line 89 "lex.l"
 {return(COLON_TOK);}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 89 "lex.l"
+#line 90 "lex.l"
 {return(LPAREN_TOK);}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 90 "lex.l"
+#line 91 "lex.l"
 {return(RPAREN_TOK);}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 91 "lex.l"
+#line 92 "lex.l"
 {return(LBRACE_TOK);}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 92 "lex.l"
+#line 93 "lex.l"
 {return(RBRACE_TOK);}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 93 "lex.l"
+#line 94 "lex.l"
 {return(LBRACKET_TOK);}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 94 "lex.l"
+#line 95 "lex.l"
 {return(RBRACKET_TOK);}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 95 "lex.l"
+#line 96 "lex.l"
 {return(SEMICOLON_TOK);}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 96 "lex.l"
+#line 97 "lex.l"
 {return(COMMA_TOK);}
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 98 "lex.l"
+#line 99 "lex.l"
 {line_number++;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 100 "lex.l"
+#line 101 "lex.l"
 {
                                         if (strlen(yytext) > MAX_ID_LENGTH) {
                                             print_error("Identifier too long", yytext);
@@ -1041,7 +1042,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 113 "lex.l"
+#line 114 "lex.l"
 {
                                         if (strlen(yytext) > MAX_NUM_LENGTH) {
                                             print_error("Integer constant too long", yytext);
@@ -1053,7 +1054,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 122 "lex.l"
+#line 123 "lex.l"
 {
                                         if (strlen(yytext) > MAX_NUM_LENGTH) {
                                             print_error("Float constant too long", yytext);
@@ -1065,7 +1066,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 131 "lex.l"
+#line 132 "lex.l"
 {
                                         print_error("Invalid number format - contains illegal characters", yytext);
                                         return INVALID_NUM_ERROR;
@@ -1073,7 +1074,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 136 "lex.l"
+#line 137 "lex.l"
 {
                                         print_error("Invalid float format - contains illegal characters", yytext);
                                         return INVALID_NUM_ERROR;
@@ -1081,7 +1082,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 141 "lex.l"
+#line 142 "lex.l"
 {
                                         print_error("Invalid number - mixed digits and illegal characters", yytext);
                                         return INVALID_NUM_ERROR;
@@ -1090,7 +1091,7 @@ YY_RULE_SETUP
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 146 "lex.l"
+#line 147 "lex.l"
 {
                                         if (strlen(yytext) > MAX_STRING_LENGTH) {
                                             print_error("String too long", yytext);
@@ -1103,7 +1104,7 @@ YY_RULE_SETUP
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 155 "lex.l"
+#line 156 "lex.l"
 {
                                         print_error("Unmatched string - newline in string", yytext);
                                         line_number++;
@@ -1113,7 +1114,7 @@ YY_RULE_SETUP
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 161 "lex.l"
+#line 162 "lex.l"
 {
                                         if (strlen(yytext) == 3) return INTCONST_TOK; // Single character
                                         if (strlen(yytext) == 4 && yytext[1] == '\\') return INTCONST_TOK; // Escape sequence
@@ -1124,7 +1125,7 @@ YY_RULE_SETUP
 case 51:
 /* rule 51 can match eol */
 YY_RULE_SETUP
-#line 168 "lex.l"
+#line 169 "lex.l"
 {
                                         print_error("Unmatched character constant - newline in character", yytext);
                                         line_number++;
@@ -1133,7 +1134,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 174 "lex.l"
+#line 175 "lex.l"
 {
                                         print_error("Illegal character(s)", yytext);
                                         return ILLEGAL_CHAR_ERROR;
@@ -1141,7 +1142,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 179 "lex.l"
+#line 180 "lex.l"
 {
                                         print_error("Invalid identifier - contains illegal characters", yytext);
                                         return ERROR_TOK;
@@ -1149,7 +1150,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 184 "lex.l"
+#line 185 "lex.l"
 {
                                         print_error("Invalid identifier - starts with illegal character", yytext);
                                         return ILLEGAL_CHAR_ERROR;
@@ -1157,12 +1158,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 189 "lex.l"
+#line 190 "lex.l"
 ;
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 191 "lex.l"
+#line 192 "lex.l"
 {
                                         print_error("Unexpected character", yytext);
                                         return ILLEGAL_CHAR_ERROR;
@@ -1170,10 +1171,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 196 "lex.l"
+#line 197 "lex.l"
 ECHO;
 	YY_BREAK
-#line 1177 "lex.yy.c"
+#line 1178 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2178,5 +2179,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 196 "lex.l"
+#line 197 "lex.l"
 
