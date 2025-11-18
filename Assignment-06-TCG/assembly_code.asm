@@ -17,41 +17,48 @@ MAIN PROC
     ; Generated code starts here
 
 ; Three-Address Code to Assembly Translation
-; Total Instructions: 7
+; Total Instructions: 10
 
 
-; = 10, , a
-    MOV AX, 10        ; Load constant 10
+; = 0, , sum
+    MOV AX, 0        ; Load constant 0
 
-; = 20, , b
-    MOV BX, 20        ; Load constant 20
+; = 5, , i
+    MOV BX, 5        ; Load constant 5
 
-; uminus b, , T0
-    MOV CX, BX        ; Copy operand
-    NEG CX            ; T0 = -b
+; label_begin , , L0
+L0:
 
-; = 5, , c
-    MOV DX, 5        ; Load constant 5
+; ifFalse i, , L1
+    CMP BX, 0         ; Compare i with 0
+    JE L1             ; Jump to L1 if equal (false)
 
-; * a, T0, T1
-    MOV [b], BX      ; Store BX to b
-    MOV BX, AX        ; Copy operand
-    IMUL BX, CX       ; BX = AX * CX
+; + sum, i, T0
+    MOV CX, AX        ; Copy operand
+    ADD CX, BX        ; CX = AX + BX
 
-; + T1, c, T2
+; = T0, , sum
+    MOV AX, CX        ; sum = T0
+
+; - i, 1, T1
+    MOV DX, 1        ; Load constant 1
     MOV [T0], CX      ; Store CX to T0
     MOV CX, BX        ; Copy operand
-    ADD CX, DX        ; CX = BX + DX
+    SUB CX, DX        ; CX = BX - DX
 
-; = T2, , d
-    MOV [T1], BX      ; Store BX to T1
-    MOV BX, CX        ; d = T2
+; = T1, , i
+    MOV BX, CX        ; i = T1
+
+; goto , , L0
+    JMP L0            ; Unconditional jump to L0
+
+; label_end , , L1
+L1:
 
 ; Store all modified values back to memory
-    MOV [a], AX      ; Store AX to a
-    MOV [d], BX      ; Store BX to d
-    MOV [T2], CX      ; Store CX to T2
-    MOV [c], DX      ; Store DX to c
+    MOV [sum], AX      ; Store AX to sum
+    MOV [i], BX      ; Store BX to i
+    MOV [T1], CX      ; Store CX to T1
 
     ; Program termination
     MOV AH, 4Ch      ; DOS exit function
