@@ -4,7 +4,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include "symbol_table.h"
-#include "icg.h"
 
 extern int line_number;
 extern int error_count;
@@ -141,20 +140,7 @@ void check_pointer_dereference(data_type_t type) {
     struct {
         data_type_t type;
         int is_lvalue;
-        char* place;  // For holding temporary variable or identifier name
     } expr_info;
-    struct {
-        int next_list[100];
-        int next_count;
-        int true_list[100];
-        int true_count;
-        int false_list[100];
-        int false_count;
-    } stmt_info;
-    struct {
-        char* label;
-        int quad;
-    } marker_info;
 }
 
 /* Token declarations */
@@ -227,18 +213,84 @@ translation_unit: translation_unit external_declaration
                 | external_declaration
                 ;
 
-/* External declarations */
-external_declaration: global_variable_declaration
-                    | function_declaration
+/* External declarations - unified to avoid conflicts */
+external_declaration: data_type {
+                       current_type = token_to_type($1);
+                     } external_declaration_tail
                     ;
 
-/* Global variable declarations */
-global_variable_declaration: data_type {
-                              current_type = token_to_type($1);
-                            } init_declarator_list SEMICOLON_TOK
-                            { print_syntax_success("Global variable declaration"); }
-                           ;
+external_declaration_tail: ID_TOK {
+                            if (!add_symbol($1, current_type, SCOPE_GLOBAL, line_number, 1)) {
+                                error_count++;
+                            }
+                            free($1);
+                            enter_scope(); // Enter function scope before parameters
+                          } LPAREN_TOK opt_parameter_list RPAREN_TOK function_tail
+                          {
+                            print_syntax_success("Function declaration");
+                          }
+                        | global_declarator_list SEMICOLON_TOK
+                          {
+                            print_syntax_success("Global variable declaration");
+                          }
+                        ;
 
+opt_parameter_list: parameter_list
+                  | /* empty */
+                  ;
+
+global_declarator_list: global_declarator_list COMMA_TOK global_declarator
+                       | global_declarator
+                       ;
+
+global_declarator: ID_TOK
+                  {
+                    if (!add_symbol($1, current_type, SCOPE_GLOBAL, line_number, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                  }
+                 | ID_TOK ASSIGN_TOK assignment_expr
+                  {
+                    if (!add_symbol($1, current_type, SCOPE_GLOBAL, line_number, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                    print_syntax_success("Variable initialization");
+                  }
+                 | ID_TOK LBRACKET_TOK INTCONST_TOK RBRACKET_TOK
+                  {
+                    data_type_t array_type;
+                    switch(current_type) {
+                        case TYPE_INT: array_type = TYPE_INT_ARRAY; break;
+                        case TYPE_FLOAT: array_type = TYPE_FLOAT_ARRAY; break;
+                        case TYPE_CHAR: array_type = TYPE_CHAR_ARRAY; break;
+                        default: array_type = current_type; break;
+                    }
+                    if (!add_symbol_with_attrs($1, array_type, SCOPE_GLOBAL,
+                                              line_number, 0, 1, $3, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                  }
+                 | ID_TOK LBRACKET_TOK RBRACKET_TOK
+                  {
+                    data_type_t array_type;
+                    switch(current_type) {
+                        case TYPE_INT: array_type = TYPE_INT_ARRAY; break;
+                        case TYPE_FLOAT: array_type = TYPE_FLOAT_ARRAY; break;
+                        case TYPE_CHAR: array_type = TYPE_CHAR_ARRAY; break;
+                        default: array_type = current_type; break;
+                    }
+                    if (!add_symbol_with_attrs($1, array_type, SCOPE_GLOBAL,
+                                              line_number, 0, 1, 0, 0)) {
+                        error_count++;
+                    }
+                    free($1);
+                  }
+                 ;
+
+/* Declarators for local variables */
 init_declarator_list: init_declarator_list COMMA_TOK init_declarator
                     | init_declarator
                     ;
@@ -287,32 +339,14 @@ declarator: ID_TOK
            }
          ;
 
-/* Function declarations (both prototypes and definitions) */
-function_declaration: data_type ID_TOK {
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                           error_count++;
-                       }
-                       free($2);
-                     } LPAREN_TOK RPAREN_TOK function_tail
-                     {
-                       print_syntax_success("Function (no parameters)");
-                     }
-                   | data_type ID_TOK {
-                       if (!add_symbol($2, token_to_type($1), SCOPE_GLOBAL, line_number, 1)) {
-                           error_count++;
-                       }
-                       free($2);
-                     } LPAREN_TOK parameter_list RPAREN_TOK function_tail
-                     {
-                       print_syntax_success("Function (with parameters)");
-                     }
-                   ;
-
 function_tail: SEMICOLON_TOK
-               { /* Function prototype */ }
-             | { enter_scope(); } compound_statement
                {
-                 /* Function definition */
+                 /* Function prototype - exit the scope entered for parameters */
+                 exit_scope();
+               }
+             | compound_statement
+               {
+                 /* Function definition - exit the scope entered for parameters */
                  exit_scope();
                }
              ;
@@ -354,11 +388,26 @@ parameter: data_type ID_TOK
          ;
 
 /* Compound statements */
+/* Function body compound statement - doesn't create new scope */
+/* (parameters are already in scope level 1) */
 compound_statement: LBRACE_TOK statement_list RBRACE_TOK
                    { print_syntax_success("Compound statement"); }
                   | LBRACE_TOK RBRACE_TOK
                    { print_syntax_success("Empty compound statement"); }
                   ;
+
+/* Nested block statement - creates new scope level */
+nested_block: LBRACE_TOK { enter_scope(); } statement_list RBRACE_TOK
+             {
+               exit_scope();
+               print_syntax_success("Nested block");
+             }
+            | LBRACE_TOK { enter_scope(); } RBRACE_TOK
+             {
+               exit_scope();
+               print_syntax_success("Empty nested block");
+             }
+            ;
 
 /* Statement lists */
 statement_list: statement_list statement
@@ -368,7 +417,7 @@ statement_list: statement_list statement
 /* Statements */
 statement: declaration_statement
          | expression_statement
-         | compound_statement
+         | nested_block
          | selection_statement
          | iteration_statement
          | jump_statement
@@ -393,27 +442,11 @@ selection_statement: IF_TOK LPAREN_TOK expression RPAREN_TOK statement %prec LOW
                     {
                       check_condition_type($3.type);
                       print_syntax_success("If statement");
-                      
-                      // Generate code: if (expr == 0) goto after_if
-                      // Note: In a full implementation, labels would be generated
-                      // with proper backpatching
-                      char* false_label = new_label();
-                      gen("ifFalse", $3.place, "", false_label);
-                      emit_label(false_label);
                     }
                    | IF_TOK LPAREN_TOK expression RPAREN_TOK statement ELSE_TOK statement
                     {
                       check_condition_type($3.type);
                       print_syntax_success("If-else statement");
-                      
-                      // Generate code for if-else
-                      // Note: This is a simplified version
-                      // Full implementation would generate:
-                      // ifFalse expr goto L_else
-                      // ... if_body ...
-                      // goto L_end
-                      // L_else: ... else_body ...
-                      // L_end:
                     }
                    ;
 
@@ -422,19 +455,6 @@ iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement
                     {
                       check_condition_type($3.type);
                       print_syntax_success("While loop");
-                      
-                      // Generate while loop code
-                      // Note: Full implementation would generate:
-                      // L_begin: ifFalse expr goto L_end
-                      // ... loop_body ...
-                      // goto L_begin
-                      // L_end:
-                      char* begin_label = new_label();
-                      char* end_label = new_label();
-                      gen("label_begin", "", "", begin_label);
-                      gen("ifFalse", $3.place, "", end_label);
-                      gen("goto", "", "", begin_label);
-                      gen("label_end", "", "", end_label);
                     }
                    | FOR_TOK LPAREN_TOK expression_statement expression_statement RPAREN_TOK statement
                     { print_syntax_success("For loop"); }
@@ -444,10 +464,6 @@ iteration_statement: WHILE_TOK LPAREN_TOK expression RPAREN_TOK statement
                     {
                       check_condition_type($5.type);
                       print_syntax_success("Do-while loop");
-                      
-                      // Generate: do-while loop structure
-                      char* begin_label = new_label();
-                      gen("ifTrue", $5.place, "", begin_label);
                     }
                    ;
 
@@ -457,8 +473,6 @@ jump_statement: RETURN_TOK expression SEMICOLON_TOK
               | RETURN_TOK SEMICOLON_TOK
                { print_syntax_success("Return statement"); }
               ;
-
-
 
 /* Expressions */
 expression: assignment_expr
@@ -474,10 +488,6 @@ assignment_expr: ternary_expr
                   check_assignment_type($1.type, $3.type, $1.is_lvalue);
                   $$.type = $1.type;
                   $$.is_lvalue = 0;
-                  
-                  // Generate three-address code: lhs = rhs
-                  gen("=", $3.place, "", $1.place);
-                  $$.place = $1.place;
                 }
                | unary_expr ADD_ASSIGN_TOK assignment_expr
                 {
@@ -634,19 +644,11 @@ additive_expr: multiplicative_expr
               {
                 $$.type = check_binary_op_type($1.type, $3.type, "+");
                 $$.is_lvalue = 0;
-                
-                // Generate: temp = arg1 + arg2
-                $$.place = new_temp();
-                gen("+", $1.place, $3.place, $$.place);
               }
              | additive_expr SUB_TOK multiplicative_expr
               {
                 $$.type = check_binary_op_type($1.type, $3.type, "-");
                 $$.is_lvalue = 0;
-                
-                // Generate: temp = arg1 - arg2
-                $$.place = new_temp();
-                gen("-", $1.place, $3.place, $$.place);
               }
              ;
 
@@ -656,28 +658,16 @@ multiplicative_expr: unary_expr
                     {
                       $$.type = check_binary_op_type($1.type, $3.type, "*");
                       $$.is_lvalue = 0;
-                      
-                      // Generate: temp = arg1 * arg2
-                      $$.place = new_temp();
-                      gen("*", $1.place, $3.place, $$.place);
                     }
                    | multiplicative_expr DIV_TOK unary_expr
                     {
                       $$.type = check_binary_op_type($1.type, $3.type, "/");
                       $$.is_lvalue = 0;
-                      
-                      // Generate: temp = arg1 / arg2
-                      $$.place = new_temp();
-                      gen("/", $1.place, $3.place, $$.place);
                     }
                    | multiplicative_expr MOD_TOK unary_expr
                     {
                       $$.type = check_binary_op_type($1.type, $3.type, "%");
                       $$.is_lvalue = 0;
-                      
-                      // Generate: temp = arg1 % arg2
-                      $$.place = new_temp();
-                      gen("%", $1.place, $3.place, $$.place);
                     }
                    ;
 
@@ -699,60 +689,23 @@ unary_expr: postfix_expr
              $$.type = $2.type;
              $$.is_lvalue = 0;
            }
-          | SUB_TOK unary_expr %prec UNARY_MINUS
+          | unary_operator unary_expr
            {
              if (!is_numeric_type($2.type)) {
                char msg[256];
-               sprintf(msg, "Unary minus requires numeric operand, got '%s'", type_to_string($2.type));
+               sprintf(msg, "Unary operator requires numeric operand, got '%s'", type_to_string($2.type));
                print_type_error(msg);
              }
              $$.type = $2.type;
              $$.is_lvalue = 0;
-             
-             // Generate: temp = - arg
-             $$.place = new_temp();
-             gen("uminus", $2.place, "", $$.place);
-           }
-          | ADD_TOK unary_expr %prec UNARY_PLUS
-           {
-             if (!is_numeric_type($2.type)) {
-               char msg[256];
-               sprintf(msg, "Unary plus requires numeric operand, got '%s'", type_to_string($2.type));
-               print_type_error(msg);
-             }
-             $$.type = $2.type;
-             $$.is_lvalue = 0;
-             $$.place = $2.place;  // Unary plus doesn't change value
-           }
-          | NOT_TOK unary_expr
-           {
-             if (!is_numeric_type($2.type)) {
-               char msg[256];
-               sprintf(msg, "Logical NOT requires numeric operand, got '%s'", type_to_string($2.type));
-               print_type_error(msg);
-             }
-             $$.type = TYPE_INT;
-             $$.is_lvalue = 0;
-             
-             // Generate: temp = ! arg
-             $$.place = new_temp();
-             gen("!", $2.place, "", $$.place);
-           }
-          | BIT_NOT_TOK unary_expr
-           {
-             if (!is_numeric_type($2.type)) {
-               char msg[256];
-               sprintf(msg, "Bitwise NOT requires numeric operand, got '%s'", type_to_string($2.type));
-               print_type_error(msg);
-             }
-             $$.type = $2.type;
-             $$.is_lvalue = 0;
-             
-             // Generate: temp = ~ arg
-             $$.place = new_temp();
-             gen("~", $2.place, "", $$.place);
            }
           ;
+
+unary_operator: ADD_TOK %prec UNARY_PLUS
+              | SUB_TOK %prec UNARY_MINUS
+              | NOT_TOK
+              | BIT_NOT_TOK
+              ;
 
 postfix_expr: primary_expr
              { $$ = $1; }
@@ -810,12 +763,10 @@ primary_expr: ID_TOK
                    error_count++;
                    $$.type = TYPE_UNKNOWN;
                    $$.is_lvalue = 0;
-                   $$.place = strdup("unknown");
                } else {
                    symbol_node_t* sym = lookup_symbol($1);
                    $$.type = sym->type;
                    $$.is_lvalue = !sym->is_array;
-                   $$.place = strdup($1);  // Variable name is its place
                }
                free($1);
              }
@@ -823,31 +774,21 @@ primary_expr: ID_TOK
              {
                $$.type = TYPE_INT;
                $$.is_lvalue = 0;
-               
-               // Integer constant - convert to string for place
-               char* const_str = (char*)malloc(20);
-               sprintf(const_str, "%d", $1);
-               $$.place = const_str;
              }
             | FLOATCONST_TOK
              {
                $$.type = TYPE_FLOAT;
                $$.is_lvalue = 0;
-               
-               // Float constant - convert to string for place
-               char* const_str = (char*)malloc(20);
-               sprintf(const_str, "%g", $1);
-               $$.place = const_str;
              }
             | STRING_TOK
              {
+               free($1);
                $$.type = TYPE_CHAR_PTR;
                $$.is_lvalue = 0;
-               $$.place = $1;  // Use string literal as place
              }
             | LPAREN_TOK expression RPAREN_TOK
              {
-               $$ = $2;  // Parenthesized expression inherits everything
+               $$ = $2;
              }
             ;
 
@@ -866,11 +807,8 @@ data_type_t token_to_type(int token) {
 }
 
 int main() {
-    printf("=== C COMPILER: LEXICAL + SYNTAX + TYPE CHECKING + ICG ===\n");
+    printf("=== C COMPILER: LEXICAL + SYNTAX + TYPE CHECKING ===\n");
     printf("Parsing input...\n\n");
-
-    // Initialize intermediate code generation
-    init_icg();
 
     if (yyparse() == 0) {
         printf("\n=== PARSING SUCCESSFUL ===\n");
@@ -879,14 +817,9 @@ int main() {
         } else {
             printf("Parsing completed with %d error(s).\n", error_count);
         }
-        
-        // Close ICG and write to file
-        close_icg();
-        print_quad_array();
     } else {
         printf("\n=== PARSING FAILED ===\n");
         printf("Errors found at line %d\n", line_number);
-        close_icg();
     }
 
     return 0;
@@ -895,4 +828,8 @@ int main() {
 void yyerror(char *s) {
     printf("SYNTAX ERROR (Line %d): %s near '%s'\n", line_number, s, yytext);
     error_count++;
+}
+
+int yywrap() {
+    return 1;
 }
