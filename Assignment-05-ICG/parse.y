@@ -293,6 +293,7 @@ function_declaration: data_type ID_TOK {
                            error_count++;
                        }
                        free($2);
+                       enter_scope(); // Enter function scope before parameters
                      } LPAREN_TOK RPAREN_TOK function_tail
                      {
                        print_syntax_success("Function (no parameters)");
@@ -302,6 +303,7 @@ function_declaration: data_type ID_TOK {
                            error_count++;
                        }
                        free($2);
+                       enter_scope(); // Enter function scope before parameters
                      } LPAREN_TOK parameter_list RPAREN_TOK function_tail
                      {
                        print_syntax_success("Function (with parameters)");
@@ -309,10 +311,13 @@ function_declaration: data_type ID_TOK {
                    ;
 
 function_tail: SEMICOLON_TOK
-               { /* Function prototype */ }
-             | { enter_scope(); } compound_statement
                {
-                 /* Function definition */
+                 /* Function prototype - exit the scope entered for parameters */
+                 exit_scope();
+               }
+             | compound_statement
+               {
+                 /* Function definition - exit the scope entered for parameters */
                  exit_scope();
                }
              ;
@@ -354,11 +359,26 @@ parameter: data_type ID_TOK
          ;
 
 /* Compound statements */
+/* Function body compound statement - doesn't create new scope */
+/* (parameters are already in scope level 1) */
 compound_statement: LBRACE_TOK statement_list RBRACE_TOK
                    { print_syntax_success("Compound statement"); }
                   | LBRACE_TOK RBRACE_TOK
                    { print_syntax_success("Empty compound statement"); }
                   ;
+
+/* Nested block statement - creates new scope level */
+nested_block: LBRACE_TOK { enter_scope(); } statement_list RBRACE_TOK
+             {
+               exit_scope();
+               print_syntax_success("Nested block");
+             }
+            | LBRACE_TOK { enter_scope(); } RBRACE_TOK
+             {
+               exit_scope();
+               print_syntax_success("Empty nested block");
+             }
+            ;
 
 /* Statement lists */
 statement_list: statement_list statement
@@ -368,7 +388,7 @@ statement_list: statement_list statement
 /* Statements */
 statement: declaration_statement
          | expression_statement
-         | compound_statement
+         | nested_block
          | selection_statement
          | iteration_statement
          | jump_statement
@@ -895,4 +915,8 @@ int main() {
 void yyerror(char *s) {
     printf("SYNTAX ERROR (Line %d): %s near '%s'\n", line_number, s, yytext);
     error_count++;
+}
+
+int yywrap() {
+    return 1;
 }
