@@ -4,8 +4,11 @@
 [![Language: C](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Tools: Flex/Bison](https://img.shields.io/badge/Tools-Flex%2FBison-green.svg)](https://www.gnu.org/software/bison/)
 [![Docs: 83K+ words](https://img.shields.io/badge/Docs-83K%2B%20words-brightgreen.svg)](#documentation)
+[![Wiki](https://img.shields.io/badge/Wiki-Documentation-blue.svg)](../../wiki)
 
 A comprehensive collection of compiler construction assignments covering all major phases of compiler design, from lexical analysis to target code generation.
+
+> 📖 **[Visit the Wiki](../../wiki)** for comprehensive documentation, tutorials, and theory guides.
 
 ## 📋 Table of Contents
 
@@ -313,6 +316,24 @@ make --version
 ## 📖 Documentation
 
 Comprehensive theoretical and practical documentation is available:
+
+### 📚 Wiki Documentation
+
+**[Visit the Wiki](../../wiki)** for the complete documentation hub:
+
+- **[Home](../../wiki/Home)** - Main wiki landing page
+- **[Getting Started](../../wiki/Getting-Started)** - Quick start guide
+- **[Theory Index](../../wiki/Theory-Index)** - All theoretical concepts
+
+**Assignment Documentation:**
+| Assignment | Wiki Page |
+|------------|-----------|
+| Lexical Analysis (Manual) | [Assignment 01](../../wiki/Assignment-01-Lexical-Analysis-Manual) |
+| Lexical Analysis (Flex) | [Assignment 02](../../wiki/Assignment-02-Lexical-Analysis-Flex) |
+| Syntax Analysis | [Assignment 03](../../wiki/Assignment-03-Syntax-Analysis) |
+| Type Checking | [Assignment 04](../../wiki/Assignment-04-Type-Checking) |
+| Intermediate Code | [Assignment 05](../../wiki/Assignment-05-ICG) |
+| Target Code | [Assignment 06](../../wiki/Assignment-06-TCG) |
 
 ### Main Documentation Files
 
